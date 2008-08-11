@@ -27,6 +27,8 @@ dist: clean
 	@cd /tmp/oda; rm -rf `find . -name ".svn"`
 	@cd /tmp; tar czf oda.tar.gz oda
 	@cp -f /tmp/oda.tar.gz .
+	@rm -rf /tmp/oda/
+	@rm -f /tmp/oda.tar.gz
 
 rpm: dist
 	sed -e "s/PERLLIBPATH/$(SEDLIBDIR)/" < oda.spec.in \
