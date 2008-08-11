@@ -183,103 +183,6 @@ sub check_yes_or_no ($) {
     return $answer;
 }
 
-sub bootstrap_oda ($) {
-    my $option = shift;
-    require OSCAR::ConfigManager;
-    require OSCAR::Bootstrap;
-
-    # We get the configuration from the OSCAR configuration file.
-    my $oscar_configurator = OSCAR::ConfigManager->new();
-    if ( ! defined ($oscar_configurator) ) {
-        carp "ERROR: Impossible to get the OSCAR configuration\n";
-        return -1;
-    }
-
-    #
-    # We setup ODA, creating few symlinks
-    #
-
-    my $orig;
-    my $dest;
-    if ($option eq "mysql" || $option eq "postgresql") {
-        # First we deal with oda.pm
-        if (defined $ENV{OSCAR_HOME}) {
-            $dest = "$ENV{OSCAR_HOME}/lib/OSCAR/oda.pm";
-            $orig = "$ENV{OSCAR_HOME}/lib/OSCAR/ODA/";
-        } else {
-            my @data = Config::config_re("vendorarch");
-            if (scalar (@data) > 1 || scalar (@data) == 0) {
-                carp "ERROR: Impossible to know where are the Perl modules";
-                return -1;
-            }
-            my ($key, $path) = split ("=", $data[0]);
-            $path =~ m/\'(.*)\'/;
-            $path = $1;
-            $dest = "$path/OSCAR/oda.pm";
-            $orig = "$path/OSCAR/ODA/";
-        }
-        if ($option eq "mysql") {
-            $orig = $orig . "mysql.pm";
-        } else {
-            $orig = $orig . "pgsql.pm";
-        }
-
-        unlink ($dest) if (-f $dest);
-        if (symlink($orig, $dest) == 0) {
-            carp "ERROR: Impossible to create symlink $orig -> $dest";
-            return -1;
-        }
-
-        # Then we deal with prereq.cfg
-        if (defined $ENV{OSCAR_HOME}) {
-            $dest = "$ENV{OSCAR_HOME}/packages/oda/prereq.cfg";
-            $orig = "$ENV{OSCAR_HOME}/packages/oda/prereqs/";
-        } else {
-            $dest = "/usr/share/oscar/prereqs/oda/prereq.cfg";
-            $orig = "/usr/share/oscar/prereqs/oda/etc/";
-        }
-        if ($option eq "mysql") {
-            $orig = $orig . "mysql.cfg";
-        } else {
-            $orig = $orig . "pgsql.cfg";
-        }
-
-        unlink ($dest) if (-f $dest);
-        if (symlink($orig, $dest) == 0) {
-            carp "ERROR: Impossible to create symlink $orig -> $dest";
-            return -1;
-        }
-    } else {
-        warn "INFO: you try to use $option, we do not need to initialize a db";
-    }
-
-    # Now everything is ready to be able to install prereqs based on the local
-    # configuation.
-    my $config = $oscar_configurator->get_config();
-    my $prereq_mode = $config->{'prereq_mode'};
-    require OSCAR::Bootstrap;
-    my $prereq_cmd = $config->{'binaries_path'} . "/install_prereq";
-    OSCAR::Bootstrap::install_prereq ($prereq_cmd,
-                                      dirname($dest),
-                                      $prereq_mode);
-
-    # Now we can really initialize the database, eventhing is ready.
-    if ($config->{db_type} eq "file") {
-        if (OSCAR::Bootstrap::init_file_db()) {
-            carp "ERROR: Impossible to initialize ODA\n";
-            return -1;
-        }
-    } elsif ($config->{db_type} eq "db") {
-        if (OSCAR::Bootstrap::init_db ($oscar_configurator)) {
-            carp "ERROR: Impossible to initialize ODA\n";
-            return -1;
-        }
-    } else {
-        carp "ERROR: Unknow ODA type ($config->{db_type})\n";
-        return -1;
-    }
-    return 0;
-}
 
 #=============================================================
 # function to execute a simple command and arguments, expanding
@@ -832,7 +735,8 @@ if ( exists $options{version} ) {
 # --init flag bootstraps ODA, therefore it is a special case
 if ( exists $options{init} ) {
     print "Initializing ODA: $options{init}\n";
-    bootstrap_oda ($options{init});
+    require OSCAR::ODA::Bootstrap;
+    OSCAR::ODA::Bootstrap::bootstrap_oda ($options{init});
     exit 0;
 }
 
