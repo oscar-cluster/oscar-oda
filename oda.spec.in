@@ -1,0 +1,39 @@
+%define binpref /usr/bin
+%define libpref PERLLIBPATH
+%define sharepref /usr/share/oscar/prereqs/oda/
+%define bintarget $RPM_BUILD_ROOT%{binpref}
+%define libtarget $RPM_BUILD_ROOT%{libpref}
+
+Summary:        OSCAR DatabAse.
+Name:           oda
+Version:        1.0
+Release:        1
+Vendor:         Open Cluster Group <http://OSCAR.OpenClusterGroup.org/>
+Distribution:   OSCAR
+Packager:       Geoffroy Vallee <valleegr@ornl.gov>
+License:        GPL
+Group:          Development/Libraries
+Source:         %{name}.tar.gz
+BuildRoot:      %{_localstatedir}/tmp/%{name}-root
+BuildArch:      noarch
+
+%description
+Set of scripts and Perl modules for the management of the OSCAR database.
+
+%prep
+%setup -n %{name}
+
+%build
+make install DESTDIR=$RPM_BUILD_ROOT
+
+%install 
+
+%files
+%defattr(-,root,root)
+%{binpref}/*
+%{libpref}/*
+%{sharepref}/*
+
+%changelog
+* Sun Jun 22 2008 Geoffroy Vallee <valleegr@ornl.gov> 2.9.1-1
+- new upstream version (see ChangeLog for more details)

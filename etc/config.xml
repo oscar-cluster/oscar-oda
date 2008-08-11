@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<oscar>
+  <name>oda</name>
+  <class>core</class>
+  <summary>Oscar DAtabase</summary>
+  <description>ODA provides a central database for OSCAR.</description>
+  <license>Freely distributable</license>
+  <group>Application/Environment</group>
+  <uri>http://oscar.openclustergroup.org/</uri>
+  <authors>
+    <author cat="upstream">
+      <name>DongInn Kim</name>
+      <email>dikim@osl.iu.edu</email>
+    </author>
+    <author cat="maintainer">
+      <name>Neil Gorsuch</name>
+      <email>ngorsuch@ncsa.uiuc.edu</email>
+    </author>
+  </authors>
+  <serverDeps/>
+  <clientDeps/>
+  <apiDeps/>
+  <changelog>
+    <versionEntry version="1.31.0-1">
+      <changelogEntry authorName="Neil Gorsuch" date="2007-06-25T10:40:48-04:00">
+        <item>Convert to the new OPKG API (for OPKGC)</item>
+      </changelogEntry>
+    </versionEntry>
+  </changelog>
+</oscar>
