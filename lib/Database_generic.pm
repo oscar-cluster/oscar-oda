@@ -97,6 +97,7 @@ $options{debug} = 1
 @EXPORT = qw( 
               create_table
               delete_table
+              init_database_passwd
               insert_into_table
               select_table
               update_table
@@ -322,7 +323,12 @@ sub select_table ($$$$$$) {
 sub create_table ($$) {
     my ($options_ref, $error_strings_ref) = @_;
 
-    my $sql_dir = "$ENV{OSCAR_HOME}/packages/oda/scripts";
+    my $sql_dir;
+    if (defined $ENV{OSCAR_HOME}) {
+        $sql_dir = "$ENV{OSCAR_HOME}/packages/oda/scripts";
+    } else {
+        $sql_dir = "/usr/share/oscar/prereqs/oda/etc";
+    }
     my $sql_file = "$sql_dir/oscar_table.sql";
 
     print "DB_DEBUG>$0:\n".
@@ -391,7 +397,20 @@ sub init_database_passwd ($) {
 
     require OSCAR::Logger;
     OSCAR::Logger::oscar_log_subsection("Making sure there is an ODA database password");
-    system( "$ENV{OSCAR_HOME}/scripts/make_database_password" );
+    my $cmd;
+    if (defined $ENV{OSCAR_HOME}) {
+        $cmd = "$ENV{OSCAR_HOME}/scripts/make_database_password";
+    } else {
+        if (!defined $oscarbinaries_path) {
+            carp "ERROR: impossible to get the location of OSCAR binaries";
+            return -1;
+        }
+        $cmd = "$oscarbinaries_path/make_database_password";
+    }
+    if (system($cmd)) {
+        carp "ERROR: impossible to execute $cmd";
+        return -1;
+    }
 
     return 0;
 }

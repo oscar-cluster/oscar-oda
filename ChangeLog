@@ -1,2 +1,5 @@
+1.1:
+- Add the automatic create and initialization of the database.
+
 1.0:
 - Separate ODA from the rest of the OSCAR code.

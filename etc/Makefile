@@ -3,7 +3,7 @@ DESTDIR=
 TOPDIR=..
 include $(TOPDIR)/Config.mk
 
-FILES := mysql.cfg pgsql.cfg
+FILES := mysql.cfg pgsql.cfg oscar_table.sql
 SUBDIRS :=
 
 all:
