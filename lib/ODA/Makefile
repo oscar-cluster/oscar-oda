@@ -2,7 +2,7 @@ DESTDIR=
 TOP_LIB_DIR = ../..
 include $(TOP_LIB_DIR)/Config.mk
 
-FILES := mysql.pm  pgsql.pm
+FILES := mysql.pm  pgsql.pm Bootstrap.pm
 SUBDIRS := 
 
 all:
@@ -17,3 +17,6 @@ install:
 uninstall:
 	cd $(DESTDIR)$(LIBDIR)/OSCAR/ODA; rm -f ${FILES}
 	for dir in ${SUBDIRS} ; do ( cd $$dir ; ${MAKE} uninstall ) ; done
+
+clean:
+	rm -f *~
