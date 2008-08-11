@@ -161,11 +161,17 @@ if ($db_type eq "db") {
 
     # The "set_global_oscar_values" scripts populates the following
     # tables: Clusters, Groups, and Status
+    my $cmd;
+    if (defined $ENV{OSCAR_HOME}) {
+        $cmd = "$ENV{OSCAR_HOME}/scripts/set_global_oscar_values ".
+                "--interface $ENV{OSCAR_HEAD_INTERNAL_INTERFACE}";
+    } else {
+        $cmd = $oscar_cfg->{'binaries_path'} . "/set_global_oscar_values ".
+                "--interface " . $oscar_cfg->{'nioscar'};
+    }
     my $exit_status =
-        system("$ENV{OSCAR_HOME}/scripts/set_global_oscar_values ".
-               "--interface $ENV{OSCAR_HEAD_INTERNAL_INTERFACE}".
-               ($options{debug}?" --debug":"") )/256;
-    croak("Couldn't initialize the global database values table")
+        system($cmd . ($options{debug}?" --debug":"") )/256;
+    croak("Couldn't initialize the global database values table ($cmd, $exit_status)")
         if $exit_status;
 
     print "\nDB_DEBUG>$0:\n===========================((( ".

@@ -134,10 +134,14 @@ sub do_select ($$$$) {
 
     my $debug_msg = ">$0:\n====> in Database::do_select SQL : $sql\n";
     print "$debug_msg" if $$options_ref{debug} || $$options_ref{verbose};
-    push @$error_strings_ref, $debug_msg;
+    if (ref($error_strings_ref) eq "ARRAY") {
+        push (@$error_strings_ref, $debug_msg);
+    }
 
     my $error_msg = "Failed to query for << $sql >>";
-    push @$error_strings_ref, $error_msg;
+    if (ref ($error_strings_ref) eq "ARRAY") {
+        push (@$error_strings_ref, $error_msg);
+    }
     my $success = oda::do_query($options_ref,
             $sql,
             $result_ref,
@@ -152,7 +156,9 @@ sub do_insert ($$$$){
 
     my $debug_msg = "DB_DEBUG>$0:\n====> in Database::do_insert SQL : $sql\n";
     print "$debug_msg" if $$options_ref{debug};
-    push @$error_strings_ref, $debug_msg;
+    if (ref($error_strings_ref) eq "ARRAY") {
+        push @$error_strings_ref, $debug_msg;
+    }
 
     my $success = oda::do_sql_command($options_ref,
             $sql,
@@ -168,7 +174,9 @@ sub do_update ($$$$) {
 
     my $debug_msg = "DB_DEBUG>$0:\n====> in Database::do_update SQL : $sql\n";
     print "$debug_msg" if $$options_ref{debug};
-    push @$error_strings_ref, $debug_msg;
+    if (ref($error_strings_ref) eq "ARRAY") {
+        push @$error_strings_ref, $debug_msg;
+    }
 
     my $success = oda::do_sql_command($options_ref,
             $sql,
@@ -234,7 +242,9 @@ sub delete_table ($$$$) {
 
     my $debug_msg = "DB_DEBUG>$0:\n====> in Database::delete_table SQL: $sql\n";
     print "$debug_msg" if $$options_ref{debug};
-    push @$error_strings_ref, $debug_msg;
+    if (ref($error_strings_ref) eq "ARRAY") {
+        push @$error_strings_ref, $debug_msg;
+    }
 
     my $error_msg = "Failed to delete values from $table table";
     my $success = oda::do_sql_command($options_ref,
