@@ -32,3 +32,6 @@ rpm: dist
 	sed -e "s/PERLLIBPATH/$(SEDLIBDIR)/" < oda.spec.in \
         > oda.spec
 	rpmbuild -bb ./oda.spec
+
+deb:
+	dpkg-buildpackage -rfakeroot
