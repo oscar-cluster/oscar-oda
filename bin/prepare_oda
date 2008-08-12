@@ -136,7 +136,9 @@ if ($db_type eq "db") {
     OSCAR::Database::start_database_service ();
 
     # create the database if not already there and leave us connected to it
-    OSCAR::Database::create_database(\%options, \@error_strings);
+    if (OSCAR::Database::create_database(\%options, \@error_strings)) {
+        die ("ERROR: Impossible to create the database");
+    }
 
     if ( ! oda::oda_connect( \%options, \@error_strings ) ) {
         warn shift @error_strings while @error_strings;
@@ -150,7 +152,9 @@ if ($db_type eq "db") {
     my $distro_string = $os->{compat_distro} . "-" . $os->{compat_distrover} .
         "-" . $os->{arch};
 
-    OSCAR::Database::create_database_tables (\%options, \@error_strings);
+    if (OSCAR::Database::create_database_tables (\%options, \@error_strings)) {
+        die "ERROR: Impossible to create the database tables";
+    }
 
 
     # The env variable $ENV{OSCAR_HEAD_INTERNAL_INTERFACE} should be defined
@@ -180,9 +184,15 @@ if ($db_type eq "db") {
 
     # "create_and_populate_basic_node_info" is another embeded script
     # to populate the "Nodes" table.
-    my $exit_status =
-        system("$ENV{OSCAR_HOME}/scripts/create_and_populate_basic_node_info".
-               ($options{debug}?" --debug":"") )/256;
+    my $cmd;
+    if (defined $ENV{OSCAR_HOME}) {
+        $cmd = "$ENV{OSCAR_HOME}/scripts/create_and_populate_basic_node_info";
+    } else {
+        $cmd = $oscar_cfg->{'binaries_path'} 
+               . "/create_and_populate_basic_node_info";
+    }
+    $cmd .= ($options{debug}?" --debug":"");
+    my $exit_status = system($cmd)/256;
     croak("Couldn't set up a default package set") if $exit_status;
 
     print "\nDB_DEBUG>$0:\n===========================((( ".

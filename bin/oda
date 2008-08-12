@@ -736,7 +736,9 @@ if ( exists $options{version} ) {
 if ( exists $options{init} ) {
     print "Initializing ODA: $options{init}\n";
     require OSCAR::ODA::Bootstrap;
-    OSCAR::ODA::Bootstrap::bootstrap_oda ($options{init});
+    if (OSCAR::ODA::Bootstrap::bootstrap_oda ($options{init})) {
+        die "ERROR: Impossible to bootstrap the database";
+    }
     exit 0;
 }
 

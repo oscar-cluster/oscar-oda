@@ -712,7 +712,9 @@ sub do_sql_command {
         return 0;
     } else {
         # Clear off the error strings in the error array.
-        shift @$error_strings_ref while @$error_strings_ref;
+        if (ref($error_strings_ref) eq "ARRAY") {
+            shift @$error_strings_ref while @$error_strings_ref;
+        }
         return 1;
     }
 }
