@@ -2149,6 +2149,7 @@ sub del_pkgconfig_vars {
     return 1;
 }
 
+# Return: 1 if success, 0 else.
 sub set_node_with_group {
     my ($node,
         $group,
@@ -2171,8 +2172,10 @@ sub set_node_with_group {
                "SELECT $cluster_id, '$node', '$group'";
         print "DB_DEBUG>$0:\n====> in Database::set_node_with_group SQL: $sql\n"
             if $$options_ref{debug};
-        die "DB_DEBUG>$0:\n====>Failed to insert values via << $sql >>"
-            if! do_insert($sql, "Nodes", $options_ref, $error_ref);
+        if (do_insert($sql, "Nodes", $options_ref, $error_ref) == 0) {
+            carp "DB_DEBUG>$0:\n====>Failed to insert values via << $sql >>";
+            return 0;
+        }
     } else {
         print "The node $node is already in the database\n";
     }

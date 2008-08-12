@@ -3,7 +3,8 @@ DESTDIR=
 TOPDIR=..
 include $(TOPDIR)/Config.mk
 
-SCRIPTS := oda populate_oda_packages_table prepare_oda create_oscar_database
+SCRIPTS := oda populate_oda_packages_table prepare_oda create_oscar_database \
+           set_global_oscar_values
 SUBDIRS :=
 
 all:
