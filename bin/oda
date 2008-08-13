@@ -40,6 +40,7 @@ use Pod::Usage;
 use Data::Dumper;
 use Term::Complete;
 use OSCAR::Utils;
+use OSCAR::oda;
 use File::Basename;
 use Carp;
 use warnings "all";
@@ -82,7 +83,12 @@ my %options = ( 'debug'        => 0,
                 'raw'          => 0,
                 'verbose'      => 0 );
 
-my $DUMP_DIR = "$ENV{OSCAR_HOME}/tmp/oda_dump";
+my $DUMP_DIR;
+if (defined $ENV{OSCAR_HOME}) {
+    $DUMP_DIR = "$ENV{OSCAR_HOME}/tmp/oda_dump";
+} else {
+    $DUMP_DIR = "/tmp/oda_dump";
+}
 my $ODAPW = "/etc/odapw";
 
 
@@ -202,7 +208,7 @@ sub execute_simple_command{
     my $passed_error_strings_ref = \@error_strings;
     # take care of faking any non-passed input parameters, and
     # set any options to their default values if not already set
-    my ( $options_ref, $error_strings_ref ) = oda::fake_missing_parameters
+    my ( $options_ref, $error_strings_ref ) = OSCAR::oda::fake_missing_parameters
     ( $passed_options_ref, $passed_error_strings_ref );
 
     mkdir $DUMP_DIR if !-e $DUMP_DIR;
@@ -265,7 +271,7 @@ sub execute_simple_command{
             push @error_strings,
             "No other arguments allowed with $command";
         } else {
-            $success = oda::create_database( $options_ref,
+            $success = OSCAR::oda::create_database( $options_ref,
                                              \@error_strings );
         }
     }elsif ( $command eq "remove_oda" ){
@@ -283,7 +289,7 @@ sub execute_simple_command{
                 my $msg = "Do you really  want to remove oda (y/n)? ";
                 my $answer = check_yes_or_no($msg);
                 if ( $answer eq "Y" ){
-                    oda::oda_disconnect($options_ref, undef);
+                    OSCAR::oda::oda_disconnect($options_ref, undef);
                     $success = oda::remove_oda( $options_ref,
                                                 \@error_strings );
                     if($success){
@@ -552,7 +558,7 @@ sub execute_simple_command{
             # We need to disconnect database to flush the password
             # information
             require OSCAR::oda;
-            OSCAR::oda::oda_disconnect( $options_ref );
+            OSCAR::oda::oda_disconnect( $options_ref , undef );
         } else {
             rename "$ODAPW.bak", "$ODAPW";
         }

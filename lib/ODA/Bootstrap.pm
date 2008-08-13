@@ -58,27 +58,44 @@ sub init_db ($) {
     require OSCAR::oda;
     print "Database Initialization\n";
     my (%options, %errors);
-    my $database_status = oda::check_oscar_database(
+    my $database_status = OSCAR::oda::check_oscar_database(
         \%options,
         \%errors);
     print "Database_status: $database_status\n";
     if (!$database_status) {
         require OSCAR::Database_generic;
+        require OSCAR::Database;
         OSCAR::Database_generic::init_database_passwd ($configurator);
+        my @errors;
+#        system "/usr/bin/oda create_database";
+#        if (OSCAR::Database::create_database (undef, \@errors) == 0) {
+#            carp "ERROR: Impossible to create the database (" 
+#                 . join(",", @errors) . ")";
+#            return -1;
+#        }
+#        my $ret = OSCAR::Database_generic::create_table (undef, undef);
+#        print "--> Create table returns: $ret\n";
         my $scripts_path = $config->{'binaries_path'};
-        my $cmd =  "$scripts_path/create_oscar_database";
-        if (system ($cmd)) {
-            carp "ERROR: Impossible to create the database ($cmd)\n";
+        my $cmd =  "$scripts_path/make_database_password";
+        if (system ($cmd)/256) {
+            carp "ERROR: Impossible to create the database passwd ($cmd)\n";
             return -1;
         }
-        print "--> Database created, now populating the database\n";
+        print "--> Password ok, now creating the database\n";
+        system "/usr/bin/create_oscar_database";
         $cmd = "$scripts_path/prepare_oda";
-        if (system ($cmd)) {
+        if (system ($cmd)/256) {
             carp "ERROR: Impossible to populate the database ($cmd)\n";
             return -1;
         }
+        $cmd = "$scripts_path/populate_default_package_set";
+        my $exit_status = system($cmd)/256;
+        if ($exit_status) {
+            carp ("Couldn't set up a default package set ($exit_status)");
+            return -1;
+        }
         # We double-check if the database really exists
-        $database_status = oda::check_oscar_database(
+        $database_status = OSCAR::oda::check_oscar_database(
             \%options,
             \%errors);
         if (!$database_status) {

@@ -1,4 +1,4 @@
-package oda;
+package OSCAR::oda;
 #
 #
 # Copyright (c) 2005-2007 The Trustees of Indiana University.  
@@ -95,7 +95,7 @@ sub oda_connect ($$) {
             if $$options_ref{debug};
         print( "DB_DEBUG>$0:\n====> executing on database <$database_name> command <DISCONNECT>\n")
             if $$options_ref{verbose};
-        oda::oda_disconnect( $options_ref,
+        OSAR::oda::oda_disconnect( $options_ref,
                  $error_strings_ref );
     }
 
@@ -291,7 +291,7 @@ sub list_tables {
 
     # connect to the database if not already connected
     ( my $was_connected_flag = $database_connected_flag ) ||
-        oda::oda_connect( $options_ref, $error_strings_ref ) ||
+        OSCAR::oda::oda_connect( $options_ref, $error_strings_ref ) ||
     return undef;
 
     # get the list of tables
@@ -301,7 +301,7 @@ sub list_tables {
     ( qq{ SHOW TABLES } );
 
     # disconnect from the database if we were not connected at start
-    oda::oda_disconnect( $options_ref,
+    OSCAR::oda::oda_disconnect( $options_ref,
              $error_strings_ref )
     if ! $was_connected_flag;
 
@@ -418,7 +418,7 @@ sub database_server_version {
 
     # connect to the database if not already connected
     (my $was_connected_flag = $database_connected_flag) ||
-	oda::oda_connect($options_ref,$error_strings_ref) ||
+	OSCAR::oda::oda_connect($options_ref,$error_strings_ref) ||
 	return $database_server_version;
 
     # get the version from the database server
@@ -431,14 +431,14 @@ sub database_server_version {
     if (!$statement_handle) {    
 	push @$error_strings_ref,
 	"error preparing sql statement <$sql_command> on database <$$options_ref{database}>:\n$DBI::errstr";
-	oda::oda_disconnect($options_ref, $error_strings_ref)
+	OSCAR::oda::oda_disconnect($options_ref, $error_strings_ref)
 	    if !$was_connected_flag;
 	return $database_server_version;
     }
     if (!$statement_handle->execute()) {
 	push @$error_strings_ref,
 	"error executing sql statement <$sql_command> on database <$$options_ref{database}>:\n$DBI::errstr";
-	oda::oda_disconnect($options_ref, $error_strings_ref)
+	OSCAR::oda::oda_disconnect($options_ref, $error_strings_ref)
 	    if !$was_connected_flag;
 	return $database_server_version;
     }
@@ -454,7 +454,7 @@ sub database_server_version {
     if ($statement_handle->err) {
 	push @$error_strings_ref,
 	"error reading database server version from database <$$options_ref{database}>:\n$DBI::errstr";
-	oda::oda_disconnect($options_ref, $error_strings_ref)
+	OSCAR::oda::oda_disconnect($options_ref, $error_strings_ref)
 	    if !$was_connected_flag;
 	return $database_server_version;
     }
@@ -462,7 +462,7 @@ sub database_server_version {
     $statement_handle->finish();
 
     # disconnect from the database if we were not connected at start
-    oda::oda_disconnect($options_ref, $error_strings_ref)
+    OSCAR::oda::oda_disconnect($options_ref, $error_strings_ref)
 	if !$was_connected_flag;
 
     # if the server version request worked, copy the result
@@ -854,9 +854,9 @@ sub create_database {
 				$passed_error_strings_ref);
 
     if ($database_connected_flag) {
-	push @$error_strings_ref,
-	"This program is already connected to the database";
-	return 0;
+	    push @$error_strings_ref,
+	        "This program is already connected to the database";
+	    return 0;
     }
 
     # even though the user/password may be all right, we require

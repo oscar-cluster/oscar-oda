@@ -240,7 +240,7 @@ sub database_connect ($$) {
         # assuming oda is available now, ...
         if ( $oda_available ) {
             # try to connect to the database
-            if ( oda::oda_connect( $options_ref,
+            if ( OSCAR::oda::oda_connect( $options_ref,
                        $error_strings_ref ) ) {
                 oscar_log_subsection (">$0:\n".
                     "====> in Database::database_connect connect worked\n") 
@@ -288,7 +288,7 @@ sub database_disconnect ($$) {
     return 1 if ! $database_connected;
 
     # disconnect from the database
-    oda::oda_disconnect( $options_ref, $error_strings_ref );
+    OSCAR::oda::oda_disconnect( $options_ref, $error_strings_ref );
     $database_connected = 0;
 
     print_error_strings($error_strings_ref);
@@ -1235,7 +1235,7 @@ sub insert_packages ($$$$$$$) {
     print "DB_DEBUG>$0:\n====> in Database::insert_packages: ".
         "Inserting package(".$passed_ref->{package}.") into Packages\n"
         if $$options_ref{verbose};
-    my $success = oda::do_sql_command($options_ref,
+    my $success = OSCAR::oda::do_sql_command($options_ref,
             $sql,
             "INSERT Table into $table",
             "Failed to insert values into $table table",
@@ -1258,7 +1258,7 @@ sub link_node_nic_to_network ($$$$$) {
         "Nodes.name='$node_name' AND Networks.name='$network_name' ";
     my @results = ();
     my @error_strings = ();
-    oda::do_query(\%options,
+    OSCAR::oda::do_query(\%options,
                 $sql,
                 \@results,
                 \@error_strings);
@@ -1748,7 +1748,7 @@ sub update_packages ($$$$$$) {
     print "$debug_msg" if $$options_ref{debug};
     push @$errors_ref, $debug_msg;
 
-    my $success = oda::do_sql_command($options_ref,
+    my $success = OSCAR::oda::do_sql_command($options_ref,
                     $sql,
                     "UPDATE Table, $table",
                     "Failed to update $table table",
@@ -2167,8 +2167,16 @@ sub set_node_with_group {
         my $cluster_ref = get_cluster_info_with_name($cluster_name,
                                                      $options_ref,
                                                      $error_ref);
+        if (!defined $cluster_ref || ref{$cluster_ref} ne "HASH") {
+            carp "ERROR: Impossible to get cluster data";
+            return 0;
+        }
         my $cluster_id = $$cluster_ref{id} if $cluster_ref;
-        $sql = "INSERT INTO Nodes (cluster_id, name, group_id) ".
+        if (!defined $cluster_id) {
+            carp "ERROR: Unknown cluster ID";
+            return 0;
+        }
+        $sql = "INSERT INTO Nodes (cluster_id, name, group_name) ".
                "SELECT $cluster_id, '$node', '$group'";
         print "DB_DEBUG>$0:\n====> in Database::set_node_with_group SQL: $sql\n"
             if $$options_ref{debug};
@@ -2386,7 +2394,7 @@ sub dec_already_locked ($$) {
     my $error_strings_ref = ( defined $passed_errors_ref && 
                   ref($passed_errors_ref) eq "ARRAY" ) ?
                   $passed_errors_ref : \@error_strings;
-    my $success =  oda::do_sql_command( $options_ref,
+    my $success =  OSCAR::oda::do_sql_command( $options_ref,
                                 $sql_command,
                                 undef,
                                 undef,
@@ -2444,7 +2452,7 @@ sub locking ($$$$) {
         return 0;
 
     # find a list of all the table names, and all the fields in each table
-    my $all_tables_ref = oda::list_tables( $options_ref, $error_strings_ref );
+    my $all_tables_ref = OSCAR::oda::list_tables( $options_ref, $error_strings_ref );
     if ( ! defined $all_tables_ref ) {
         database_disconnect( $options_ref, $error_strings_ref )
             if ! $database_connected;
@@ -2472,7 +2480,7 @@ sub locking ($$$$) {
 
     # now do the single command
     $success = 0 
-    if ! oda::do_sql_command( $options_ref,
+    if ! OSCAR::oda::do_sql_command( $options_ref,
                   $sql_command,
                   "oda\:\:$type_of_lock"."_lock",
                   "$type_of_lock lock in tables (" .
@@ -2517,7 +2525,7 @@ sub unlock ($$) {
     my $success = 1;
 
     # now do the single command
-    $success = 0 if ! oda::do_sql_command( $options_ref,
+    $success = 0 if ! OSCAR::oda::do_sql_command( $options_ref,
                       $sql_command,
                       "oda\:\:unlock",
                       "unlock the tables locked in the database",
@@ -2527,7 +2535,7 @@ sub unlock ($$) {
     database_disconnect( $options_ref, $error_strings_ref )
         if ! $database_connected;
 
-    oda::initialize_locked_tables();
+    OSCAR::oda::initialize_locked_tables();
 
     return $success;
 
@@ -2562,7 +2570,7 @@ sub single_dec_locked ($$$$$) {
         @tables = @$tables_ref;
     } else {
         #chomp(@tables = oda::list_tables);
-        my $all_tables_ref = oda::list_tables( $options_ref, $errors_ref );
+        my $all_tables_ref = OSCAR::oda::list_tables( $options_ref, $errors_ref );
         foreach my $table (keys %$all_tables_ref){
             push @tables, $table;
         }
@@ -2574,7 +2582,7 @@ sub single_dec_locked ($$$$$) {
 #        return 0;
         #die "DB_DEBUG>$0:\n====> cannot connect to oda database";
 #    }
-    my $success = oda::do_query( $options_ref,
+    my $success = OSCAR::oda::do_query( $options_ref,
                     $command_args_ref,
                     $results_ref,
                     $errors_ref );
@@ -2657,11 +2665,11 @@ sub create_database ($$) {
     my ($options, $error_strings) = @_;
     my %databases = ();
 
-    oda::list_databases($options, \%databases, $error_strings );
+    OSCAR::oda::list_databases($options, \%databases, $error_strings );
     if ( ! $databases{ oscar } ) {
         oscar_log_subsection ("Creating the OSCAR database ...\n");
         my @error_strings = ();
-        if ( ! oda::create_database( \%options, \@error_strings ) ) {
+        if ( ! OSCAR::oda::create_database( \%options, \@error_strings ) ) {
             warn shift @error_strings while @error_strings;
             carp "ERROR>$0:\n====> cannot create the OSCAR database";
             return -1;
@@ -2701,7 +2709,7 @@ sub start_database_service {
         print "$command\n";
         if ( system( $command ) ) {
         my @error_strings = ();
-        oda::oda_disconnect( \%options, undef );
+        OSCAR::oda::oda_disconnect( \%options, undef );
         warn shift @error_strings while @error_strings;
         die "DB_DEBUG>$0:\n====> cannot start the $db_service_name database ".
             "server!";
@@ -2737,7 +2745,7 @@ sub create_database_tables ($$) {
 
     # 
     my $tables_are_created = 0;
-    my $all_table_names_ref = oda::list_tables( $options,
+    my $all_table_names_ref = OSCAR::oda::list_tables( $options,
                                                 $error_strings );
     if ( defined $all_table_names_ref ) {
         my @result_strings = sort keys %$all_table_names_ref;

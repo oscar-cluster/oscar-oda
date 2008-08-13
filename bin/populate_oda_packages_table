@@ -29,7 +29,6 @@ use lib "$ENV{OSCAR_HOME}/lib", "$ENV{OSCAR_HOME}/lib/OSCAR";
 use OSCAR::Database;
 use OSCAR::Database_generic;
 use OSCAR::oda;
-use OSCAR::OCA::OS_Detect;
 use OSCAR::PackagePath;
 use OSCAR::OpkgDB;
 use Data::Dumper;
@@ -43,17 +42,6 @@ if ( (exists $ENV{OSCAR_VERBOSE} && $ENV{OSCAR_VERBOSE} == 10)
     || $ENV{OSCAR_DB_VERBOSE} || $ENV{OSCAR_DB_DEBUG}){
     $options{debug} = 1;
 }
-my $oscar_home;
-# first try the environmental variable
-if (exists $ENV{OSCAR_HOME}) {
-    $oscar_home = $ENV{OSCAR_HOME};
-    die "[$0]:\n====> bad OSCAR_HOME environmental variable value <$oscar_home>"
-	if ( ! -d "$oscar_home");
-} else {
-    die "\nEnv variable \$OSCAR_HOME is not set!\n";
-}
-
-print "[$0]:\n====> oscar_home=<$oscar_home>\n" if $options{debug};
 
 # configure command line options parsing
 Getopt::Long::Configure("ignore_case"); # ignore case
@@ -100,19 +88,21 @@ if ($ARGV[0]) {
     print "Populating Packages table for distribution: $distro_string\n";
 }
 
+print "Detecting local distro...\n";
 if (!$os) {
     $os = &distro_detect_or_die();
     $distro_string = &os_cdistro_string($os);
 }
 
-if (!oda::oda_connect( \%options, \@error_strings)) {
+print "Connecting to ODA...\n";
+if (!OSCAR::oda::oda_connect( \%options, \@error_strings)) {
     warn shift @error_strings while @error_strings;
     die "[$0]:\n====> cannot connect to the OSCAR database";
 }
 
 my %fields = ();
 if ((scalar keys %table_fields_hash) == 0) {
-    oda::list_fields(\%options,"Packages",\%fields,\@error_strings);
+    OSCAR::oda::list_fields(\%options,"Packages",\%fields,\@error_strings);
     my %packages_hash = %fields;
     foreach my $field (keys %packages_hash) {
         if($field eq "__group"){ $field = "group"; }
@@ -125,6 +115,7 @@ if ((scalar keys %table_fields_hash) == 0) {
 #
 # All packages are candidates for deletion. Add them to a hash.
 #
+print "Creating the list of packages to delete...\n";
 my %opkg_to_be_deleted = ();
 my @opkgs = ();
 &get_packages(\@opkgs,\%options,\@error_strings, distro => $distro_string);
@@ -136,7 +127,10 @@ foreach my $opkg_ref (@opkgs){
 #
 # Get info on all opkgs available in the passed OS repositories
 #
-my %o = &opkg_hash_available(os => $os);
+print "Getting info on all opkgs available in the passed OS repositories...\n";
+
+my %hash = ('os', $os);
+my %o = OSCAR::OpkgDB::opkg_hash_available(%hash);
 
 print "\n[$0]:\n<<<<<===========================".
     " Populating the Packages records starts\n"
@@ -196,7 +190,7 @@ foreach my $pkg (keys %opkg_to_be_deleted){
     }
 }
 
-oda::oda_disconnect( \%options );
+OSCAR::oda::oda_disconnect( \%options, undef );
 exit 0;
 
 ##########################################################################

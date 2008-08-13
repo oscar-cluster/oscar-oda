@@ -142,7 +142,7 @@ sub do_select ($$$$) {
     if (ref ($error_strings_ref) eq "ARRAY") {
         push (@$error_strings_ref, $error_msg);
     }
-    my $success = oda::do_query($options_ref,
+    my $success = OSCAR::oda::do_query($options_ref,
             $sql,
             $result_ref,
             $error_strings_ref);
@@ -160,7 +160,7 @@ sub do_insert ($$$$){
         push @$error_strings_ref, $debug_msg;
     }
 
-    my $success = oda::do_sql_command($options_ref,
+    my $success = OSCAR::oda::do_sql_command($options_ref,
             $sql,
             "INSERT Table into $table",
             "Failed to insert values into $table table",
@@ -178,7 +178,7 @@ sub do_update ($$$$) {
         push @$error_strings_ref, $debug_msg;
     }
 
-    my $success = oda::do_sql_command($options_ref,
+    my $success = OSCAR::oda::do_sql_command($options_ref,
             $sql,
             "UDATE Table $table",
             "Failed to update $table table",
@@ -216,7 +216,7 @@ sub insert_into_table ($$$$) {
     push @$error_strings_ref, $debug_msg;
 
     my $error_msg = "Failed to insert values to $table table";
-    my $success = oda::do_sql_command($options_ref,
+    my $success = OSCAR::oda::do_sql_command($options_ref,
             $sql,
             "Insert Table $table",
             $error_msg,
@@ -247,7 +247,7 @@ sub delete_table ($$$$) {
     }
 
     my $error_msg = "Failed to delete values from $table table";
-    my $success = oda::do_sql_command($options_ref,
+    my $success = OSCAR::oda::do_sql_command($options_ref,
             $sql,
             "DELETE Table $table",
             $error_msg,
@@ -278,7 +278,7 @@ sub update_table ($$$$$) {
     print "$debug_msg";
     push @$error_strings_ref, $debug_msg;
     my $error_msg = "Failed to update values to $table table";
-    my $success = oda::do_sql_command($options_ref,
+    my $success = OSCAR::oda::do_sql_command($options_ref,
             $sql,
             "UPDATE Table $table",
             $error_msg,
@@ -322,7 +322,7 @@ sub select_table ($$$$$$) {
 
     my $error_msg = "Failed to query values from $table table";
     push @$error_strings_ref, $error_msg;
-    my $success = oda::do_query($options_ref,
+    my $success = OSCAR::oda::do_query($options_ref,
             $sql,
             $result,
             $error_strings_ref);
@@ -359,7 +359,7 @@ sub create_table ($$) {
     print "$debug_msg" if $$options_ref{debug};
     push @$error_strings_ref, $debug_msg;
 
-    my $success = oda::do_shell_command($options_ref, "$cmd", $error_strings_ref);
+    my $success = OSCAR::oda::do_shell_command($options_ref, "$cmd", $error_strings_ref);
 
     $error_strings_ref = \@error_strings;
     return  $success;
@@ -403,8 +403,6 @@ sub init_database_passwd ($) {
     my $oscarbinaries_path = $config->{'binaries_path'};
 
     # Make sure there is a database password
-    print "Binary path = $oscarbinaries_path\n";
-
     require OSCAR::Logger;
     OSCAR::Logger::oscar_log_subsection("Making sure there is an ODA database password");
     my $cmd;

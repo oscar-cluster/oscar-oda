@@ -140,7 +140,7 @@ if ($db_type eq "db") {
         die ("ERROR: Impossible to create the database");
     }
 
-    if ( ! oda::oda_connect( \%options, \@error_strings ) ) {
+    if ( OSCAR::oda::oda_connect( \%options, \@error_strings ) == 0 ) {
         warn shift @error_strings while @error_strings;
         die "DB_DEBUG>$0:\n====> cannot connect to the OSCAR database";
     }
@@ -214,13 +214,13 @@ if ($db_type eq "db") {
     # Now populate the Packages table with the info from the reachable
     # repositories.
     #
-    my $exit_status =
-        system("$ENV{OSCAR_HOME}/scripts/populate_oda_packages_table".
-                ($options{debug}?" --debug":"") )/256;
+    $cmd = $oscar_cfg->{'binaries_path'} . "/populate_oda_packages_table" 
+           . ($options{debug}?" --debug":"");
+    my $exit_status = system($cmd)/256;
     croak("Couldn't populate packages table") if $exit_status;
 
 
-    oda::oda_disconnect( \%options , undef );
+    OSCAR::oda::oda_disconnect( \%options , undef );
 } elsif ($db_type eq "file") {
     print "File based ODA, nothing to do\n";
 } else {
