@@ -68,11 +68,20 @@ my @tables =("Cluster","Nodes", "Packages", "Node_Package_Status", "Image_Packag
 #}
 
 # Make a 'Default' group selected
-set_groups_selected($DEFAULT,\%options,\@errors);
+if (set_groups_selected($DEFAULT, \%options, \@errors) != 1) {
+    die "ERROR: Impossible to set the Default group in ODA";
+}
 
 # get a list of all installable packages
 my @installable_packages = ();
-get_selected_group_packages(\@installable_packages,\%options,\@errors);
+if (get_selected_group_packages(\@installable_packages,
+                                \%options,
+                                \@errors,
+                                undef,
+                                undef) != 1) {
+    die "ERROR: Impossible to the selected group of packages: "
+        . join (", ", @installable_packages);
+}
 
 
 # get the list of package_sets
@@ -90,8 +99,12 @@ if ( @package_set_names )  {
     # create an empty default package set
     print "Initializing package set <$DEFAULT>\n";
     @errors = ("error creating package set <$DEFAULT>");
-    set_groups($DEFAULT,\%options,\@errors);
-    set_groups_selected($DEFAULT,\%options,\@errors);
+    if (set_groups($DEFAULT, \%options, \@errors, undef) != 1) {
+        die "ERROR: Impossible to create the default package set";
+    }
+    if (set_groups_selected($DEFAULT,\%options,\@errors) != 1) {
+        die "ERROR: Impossible to select the default package set";
+    }
 
     # populate the default package set with all installable packages
     foreach my $package_ref ( @installable_packages ) {
@@ -127,13 +140,16 @@ foreach my $package_ref (@installable_packages){
                     $OSCAR_SERVER_NODE,
                     $package_name,
                     $requested,
-                    \@errors);
+                    \@errors,
+                    undef);
 }
 
 
 # UNLOCKING FOR NEST
 #unlock(\%options, \@errors);
 
+# TOTO - GV: this is a stupid test, $success only has the return code of the 
+# last update.
 if ( $success ) {
     exit 0;
 } else {

@@ -1,6 +1,6 @@
 1.1:
 - Add the automatic create and initialization of the database.
-- Add the create_oscar_database script.
+- Continue to move many ODA scripts from OSCAR trunk.
 - Add a dedicated Perl module for the bootstrapping.
 
 1.0:

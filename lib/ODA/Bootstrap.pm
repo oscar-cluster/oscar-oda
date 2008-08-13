@@ -82,7 +82,11 @@ sub init_db ($) {
             return -1;
         }
         print "--> Password ok, now creating the database\n";
-        system "/usr/bin/create_oscar_database";
+        $cmd = "$scripts_path/create_oscar_database";
+        if (system ($cmd)/265) {
+            carp "ERROR: Impossible to create the database";
+            return -1;
+        }
         $cmd = "$scripts_path/prepare_oda";
         if (system ($cmd)/256) {
             carp "ERROR: Impossible to populate the database ($cmd)\n";

@@ -614,6 +614,7 @@ sub get_selected_group ($$) {
     return $answer;
 }
 
+# Return 1 if success, anything else if error
 sub get_selected_group_packages ($$$$$) {
     my ($results_ref,
         $options_ref,
