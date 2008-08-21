@@ -63,10 +63,10 @@ sub init_db ($) {
         \%errors);
     print "Database_status: $database_status\n";
     if (!$database_status) {
-        require OSCAR::Database_generic;
-        require OSCAR::Database;
-        OSCAR::Database_generic::init_database_passwd ($configurator);
-        my @errors;
+#        require OSCAR::Database_generic;
+#        require OSCAR::Database;
+#        OSCAR::Database_generic::init_database_passwd ($configurator);
+#        my @errors;
 #        system "/usr/bin/oda create_database";
 #        if (OSCAR::Database::create_database (undef, \@errors) == 0) {
 #            carp "ERROR: Impossible to create the database (" 
@@ -77,23 +77,25 @@ sub init_db ($) {
 #        print "--> Create table returns: $ret\n";
         my $scripts_path = $config->{'binaries_path'};
         my $cmd =  "$scripts_path/make_database_password";
-        if (system ($cmd)/256) {
-            carp "ERROR: Impossible to create the database passwd ($cmd)\n";
+        my $ret = system ($cmd);
+        if ($ret) {
+            carp "ERROR: Impossible to create the database passwd ".
+                 "($cmd, $ret)\n";
             return -1;
         }
         print "--> Password ok, now creating the database\n";
         $cmd = "$scripts_path/create_oscar_database";
-        if (system ($cmd)/265) {
+        if (system ($cmd)) {
             carp "ERROR: Impossible to create the database";
             return -1;
         }
         $cmd = "$scripts_path/prepare_oda";
-        if (system ($cmd)/256) {
+        if (system ($cmd)) {
             carp "ERROR: Impossible to populate the database ($cmd)\n";
             return -1;
         }
         $cmd = "$scripts_path/populate_default_package_set";
-        my $exit_status = system($cmd)/256;
+        my $exit_status = system($cmd);
         if ($exit_status) {
             carp ("Couldn't set up a default package set ($exit_status)");
             return -1;

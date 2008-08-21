@@ -744,12 +744,12 @@ sub get_node_package_status_with_node {
         $options_ref,
         $error_strings_ref,
         $requested) = @_;
-    my $sql = "select node_package_status.* " .
-              "from node_package_status, nodes ".
-              "where node_package_status.node_id=nodes.id ".
-              "and nodes.name='$node'";
+    my $sql = "SELECT Node_Package_Status.* " .
+              "From Node_Package_Status, Nodes ".
+              "WHERE Node_Package_Status.node_id=Nodes.id ".
+              "AND Nodes.name='$node'";
     if (defined $requested && $requested ne "") {
-        $sql .= " and node_package_status.requested=$requested ";
+        $sql .= " AND Node_Package_Status.requested=$requested ";
     }
     print "DB_DEBUG>$0:\n====> in Database::get_node_package_status_with_node SQL : $sql\n" if $$options_ref{debug};
     return do_select($sql,$results, $options_ref, $error_strings_ref);

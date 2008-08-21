@@ -1,3 +1,11 @@
+1.2:
+- Fix different bugs in SQL syntax (introduced during the merge of the OSCAR
+branch-5-1 into trunk).
+- Clean up the bootstrapping (the database password was generated twice).
+- Include the missing make_database_password script when using Make commands.
+- Fix a bootstrapping issue: we were refering to OSCAR::oda even where the
+bootstrapping was not complete, ending in errors.
+
 1.1:
 - Add the automatic create and initialization of the database.
 - Continue to move many ODA scripts from OSCAR trunk.

@@ -40,7 +40,6 @@ use Pod::Usage;
 use Data::Dumper;
 use Term::Complete;
 use OSCAR::Utils;
-use OSCAR::oda;
 use File::Basename;
 use Carp;
 use warnings "all";
@@ -155,7 +154,8 @@ sub exist_oscar_database ($$) {
     my ( $options_ref,
          $error_strings_ref ) = @_;
     my %databases = ();
-    oda::list_databases( $options_ref,
+    require OSCAR::oda;
+    OSCAR::oda::list_databases( $options_ref,
                          \%databases,
                          $error_strings_ref );
     my $status = 0;
@@ -208,6 +208,7 @@ sub execute_simple_command{
     my $passed_error_strings_ref = \@error_strings;
     # take care of faking any non-passed input parameters, and
     # set any options to their default values if not already set
+    require OSCAR::oda;
     my ( $options_ref, $error_strings_ref ) = OSCAR::oda::fake_missing_parameters
     ( $passed_options_ref, $passed_error_strings_ref );
 
