@@ -21,9 +21,14 @@ package oda;
 # ODA for PostgreSQL
 #
 
+BEGIN {
+    if (defined $ENV{OSCAR_HOME}) {
+        unshift @INC, "$ENV{OSCAR_HOME}/lib";
+    }
+}
+
 use strict;
 use Carp;
-use lib "$ENV{OSCAR_HOME}/lib";
 use DBI;
 use DBD::Pg;
 use Data::Dumper;

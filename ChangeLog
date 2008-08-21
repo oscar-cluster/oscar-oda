@@ -1,3 +1,7 @@
+1.3 (not yet released):
+- Remove useless error messages when OSCAR_HOME is not defined.
+- print a success message at the end of the ODA initialization.
+
 1.2:
 - Fix different bugs in SQL syntax (introduced during the merge of the OSCAR
 branch-5-1 into trunk).

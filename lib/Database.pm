@@ -59,8 +59,13 @@ package OSCAR::Database;
 #
 ########################
 
+BEGIN {
+    if (defined $ENV{OSCAR_HOME}) {
+        unshift @INC, "$ENV{OSCAR_HOME}/lib";
+    }
+}
+
 use strict;
-use lib "$ENV{OSCAR_HOME}/lib";
 use Carp;
 use vars qw(@EXPORT $VERSION);
 use base qw(Exporter);
