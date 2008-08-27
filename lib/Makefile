@@ -3,7 +3,7 @@ DESTDIR=
 TOPDIR=..
 include $(TOPDIR)/Config.mk
 
-FILES := Database_generic.pm Database.pm 
+FILES := Database_generic.pm Database.pm ODA_Defs.pm
 SUBDIRS := ODA
 
 all:

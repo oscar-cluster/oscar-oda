@@ -1,6 +1,7 @@
 1.3 (not yet released):
 - Remove useless error messages when OSCAR_HOME is not defined.
-- print a success message at the end of the ODA initialization.
+- Print a success message at the end of the ODA initialization.
+- Add a files for the definition of all the ODA constants (ODA_Defs.pm)
 
 1.2:
 - Fix different bugs in SQL syntax (introduced during the merge of the OSCAR

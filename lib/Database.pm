@@ -76,6 +76,7 @@ use OSCAR::Distro;
 use OSCAR::Utils qw (print_array);
 use OSCAR::Logger;
 use OSCAR::ConfigManager;
+use OSCAR::ODA_Defs;
 use Data::Dumper;
 
 # oda may or may not be installed and initialized
@@ -668,10 +669,7 @@ sub get_group_packages ($$$$) {
 # packages from the table "Node_Package_Status" where the "selected"
 # flag is 2.
 
-# Flag : selected
-# 0 -> default (Selector has not touched the field)
-# 1 -> unselected
-# 2 -> selected
+# Flag : see the ODA_Defs.pm file.
 sub get_selected_packages ($$$$) {
     my ($results,
         $options_ref,
@@ -683,7 +681,7 @@ sub get_selected_packages ($$$$) {
     my $sql = "SELECT Node_Package_Status.* " .
              "From Node_Package_Status, Nodes ".
              "WHERE Node_Package_Status.node_id=Nodes.id ".
-             "AND Node_Package_Status.selected=2 ".
+             "AND Node_Package_Status.selected=".SELECTED." ".
              "AND Nodes.name='$node_name'";
     print "DB_DEBUG>$0:\n====> in Database::is_installed_on_node SQL : $sql\n" if $$options_ref{debug};
     return do_select($sql,$results, $options_ref, $error_strings_ref);
@@ -694,10 +692,7 @@ sub get_selected_packages ($$$$) {
 # packages from the table "Node_Package_Status" where the "selected"
 # flag is 1.
 
-# Flag : selected
-# 0 -> default (Selector has not touched the field)
-# 1 -> unselected
-# 2 -> selected
+# Flag : see the ODA_Defs.pm file.
 sub get_unselected_packages ($$$$) {
     my ($results,
         $options_ref,
@@ -709,7 +704,7 @@ sub get_unselected_packages ($$$$) {
     my $sql = "SELECT Node_Package_Status.* " .
              "From Node_Package_Status, Nodes ".
              "WHERE Node_Package_Status.node_id=Nodes.id ".
-             "AND Node_Package_Status.selected=1 ".
+             "AND Node_Package_Status.selected=".UNSELECTED." ".
              "AND Nodes.name='$node_name'";
     print "DB_DEBUG>$0:\n====> in Database::is_installed_on_node SQL : $sql\n" if $$options_ref{debug};
     return do_select($sql,$results, $options_ref, $error_strings_ref);
@@ -1305,11 +1300,8 @@ sub update_node ($$$$) {
     return  do_update($sql,"Nodes", $options_ref, $error_strings_ref);
 }
 
-# For normal oscar package installation, 
-# the value of  "requested" filed has the following.
-# 1 : should_not_be_installed.
-# 2 : should_be_installed
-# 8 : finished
+# For normal oscar package installation, the possible values of  "requested"  #
+# are defined in ODA_Defs.
 sub update_node_package_status ($$$$$$) {
     my ($options_ref,
         $node,
@@ -1318,7 +1310,7 @@ sub update_node_package_status ($$$$$$) {
         $errors_ref,
         $selected) = @_;
 
-    $requested = 1 if ! $requested;
+    $requested = SHOULD_NOT_BE_INSTALLED if ! $requested;
     my $packages;
     if (ref($passed_pkg) eq "ARRAY"){
         $packages = $passed_pkg;
@@ -1344,11 +1336,11 @@ sub update_node_package_status ($$$$$$) {
             print "DB_DEBUG>$0:\n====> in ".
                   "Database::update_node_package_status Updating the status of ".
                   "$opkg to \"";
-            if ($requested == 8) {
+            if ($requested == FINISHED) {
                 print "installed";
-            } elsif ($requested == 2) {
+            } elsif ($requested == SHOULD_BE_INSTALLED) {
                 print "should be installed";
-            } elsif ($requested == 1) {
+            } elsif ($requested == SHOULD_NOT_BE_INSTALLED) {
                 print "should not be installed";
             } else {
                 print "... unknown status: ($requested)";
@@ -1366,7 +1358,7 @@ sub update_node_package_status ($$$$$$) {
             my $pstatus_ref = pop @results;
             my $ex_status = $$pstatus_ref{ex_status};
             $field_value_hash{requested} = $ex_status
-                if($ex_status == 8 && $requested == 2);
+                if($ex_status == FINISHED && $requested == SHOULD_BE_INSTALLED);
             $field_value_hash{ex_status} = $$pstatus_ref{requested};
 
             # If $requested is 8(finished), set the "ex_status" to 8
@@ -1377,7 +1369,7 @@ sub update_node_package_status ($$$$$$) {
             # NOTE : the "selected" field is only for PackageInUn
             #
             $field_value_hash{ex_status} = $requested 
-                if ($requested == 8 && $ex_status != 2);
+                if ($requested == FINISHED && $ex_status != SHOULD_BE_INSTALLED);
             $field_value_hash{selected} = $selected if ($selected);
             my $where = "WHERE node_id=$node_id AND package=\'$opkg\'";
             if (!&update_table($options_ref,
@@ -1611,7 +1603,7 @@ sub update_image_package_status_hash ($$$$$) {
 # TODO: code duplication with the function update_image_package_status, we
 # shoudl avoid that.
 # For normal oscar package installation, 
-# the value of  "requested" filed has the following.
+# the possible values of  "requested" are defined in ODA_Defs.pm.
 # 1 : should_not_be_installed.
 # 2 : should_be_installed
 # 8 : finished
@@ -1623,7 +1615,7 @@ sub update_image_package_status {
         $errors_ref,
         $selected) = @_;
 
-    $requested = 1 if ! $requested;
+    $requested = SHOULD_NOT_BE_INSTALLED if ! $requested;
     my $packages;
     if (ref($passed_pkg) eq "ARRAY"){
         $packages = $passed_pkg;
@@ -1650,9 +1642,9 @@ sub update_image_package_status {
                 "of $opkg to \"";
             if ($requested == 8) {
                 print "installed";
-            } elsif ($requested == 2) {
+            } elsif ($requested == SHOULD_BE_INSTALLED) {
                 print "should be installed";
-            } elsif ($requested == 1) {
+            } elsif ($requested == SHOULD_NOT_BE_INSTALLED) {
                 print "should not be installed";
             } else {
                 print "... unknown status ($requested)";
@@ -1674,7 +1666,7 @@ sub update_image_package_status {
             my $pstatus_ref = pop @results;
             my $ex_status = $$pstatus_ref{ex_status};
             $field_value_hash{requested} = $ex_status
-                if($ex_status == 8 && $requested == 2);
+                if($ex_status == FINISHED && $requested == SHOULD_BE_INSTALLED);
             $field_value_hash{ex_status} = $$pstatus_ref{requested};
 
             # If $requested is 8(finished), set the "ex_status" to 8
@@ -1685,7 +1677,7 @@ sub update_image_package_status {
             # NOTE : the "selected" field is only for PackageInUn
             #
             $field_value_hash{ex_status} = $requested 
-                if ($requested == 8 && $ex_status != 2);
+                if ($requested == FINISHED && $ex_status != SHOULD_BE_INSTALLED);
             $field_value_hash{selected} = $selected if ($selected);
             if (!&update_table($options_ref,
                 $table,
