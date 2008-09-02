@@ -28,7 +28,7 @@
 # Copyright (c) 2007 Oak Ridge National Laboratory
 #                    Geoffroy Vallee <valleegr@ornl.gov>
 #                    All rights reserved.
-#       
+#
 # $Id$
 
 # This program creates the OSCAR database and then generates all the
@@ -264,3 +264,43 @@ USAGE
     exit $exit_status;
 }
 
+__END__
+
+=head1 NAME
+
+This script is part of the OSCAR software (http://oscar.openclustergroup.org/).
+This program prepare the OSCAR database (ODA).
+
+=head1 SYNOPSIS
+
+prepare_oda <OPTIONS>
+
+=head1 OPTIONS
+
+=over 2
+
+=item debug Enable debugging output.
+
+=item help  Print usage information.
+
+=back
+
+=head1 AUTHORS
+
+=item Neil Gorsuch <ngorsuch@ncsa.uiuc.edu>
+
+=item Benoit des Ligneris <bdesligneris@revolutionlinux.com>
+
+=itemIndiana University.
+
+=item Bernard Li <bli@bcgsc.ca>.
+
+=item Erich Focht <efocht@hpce.nec.com>
+
+=item Geoffroy Vallee <valleegr@ornl.gov>
+
+=head1 SEE ALSO
+
+perl(1)
+
+=cut

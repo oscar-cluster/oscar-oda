@@ -258,6 +258,8 @@ USAGE
     exit $exit_status;
 }
 
+__END__
+
 =head1 NAME
 
 This script is part of the OSCAR software (http://oscar.openclustergroup.org/).
@@ -279,7 +281,7 @@ populate_oda_packages_table <OPTIONS>
 
 =head1 AUTHOR
 
-Erich Focht <efocht@hpce.nec.com>
+=item Erich Focht <efocht@hpce.nec.com>
 
 =head1 SEE ALSO
 

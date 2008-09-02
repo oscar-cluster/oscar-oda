@@ -256,3 +256,38 @@ if ($ret == 0) {
 #unlock(\%options, \@errors);
 
 exit 0;
+
+__END__
+
+=head1 NAME
+
+This script is part of the OSCAR software (http://oscar.openclustergroup.org/).
+It sets global OSCAR values and populate the OSCAR database. You must specify the headnode interface as an argument.
+
+=head1 OPTIONS
+
+=over 4
+
+=item [no]debug       [do not] turn on debug output (default: no)
+
+=item help            print out usage information then exits
+
+=item interface       specifies the headnode interface to use (eg. eth1)
+
+=item [no]verbose     [do not] turn on verbose output (default: no)
+
+=back
+
+=head1 AUTHORS
+
+=item Bernard Li <bli@bcgsc.ca>
+
+=item Indiana University
+
+=item Erich Focht <efocht@hpce.nec.com>
+
+=head1 SEE ALSO
+
+perl(1)
+
+=cut
