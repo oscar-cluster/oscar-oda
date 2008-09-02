@@ -29,7 +29,7 @@
 #                    Geoffroy Vallee <valleegr@ornl.gov>
 #                    All rights reserved.
 #       
-# $Id: prepare_oda 7201 2008-07-31 03:20:45Z valleegr $
+# $Id$
 
 # This program creates the OSCAR database and then generates all the
 # OSCAR database tables.  The tables are created using the sql

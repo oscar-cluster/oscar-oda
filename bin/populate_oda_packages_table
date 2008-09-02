@@ -19,8 +19,8 @@
 #
 # Copyright (c) 2007 Erich Focht <efocht@hpce.nec.com>
 #                    All rights reserved.
-#       
-# $Id: populate_oda_packages_table 7185 2008-07-29 19:04:03Z valleegr $
+#
+# $Id$
 #
 
 use strict;
@@ -258,3 +258,31 @@ USAGE
     exit $exit_status;
 }
 
+=head1 NAME
+
+This script is part of the OSCAR software (http://oscar.openclustergroup.org/).
+This program populates the Packages table with information retrieved from the reachable repositories for a particular distro-version-arch combination. Without an argument it queries the repositories corresponding to the machine the program runs on.
+
+=head1 SYNOPSIS
+
+populate_oda_packages_table <OPTIONS>
+
+=head1 OPTIONS
+
+=over 2
+
+=item help  Prints out usage information then exists.
+
+=item --[no]verbose     Turns on[off] verbose output, default is off
+
+=back
+
+=head1 AUTHOR
+
+Erich Focht <efocht@hpce.nec.com>
+
+=head1 SEE ALSO
+
+perl(1)
+
+=cut

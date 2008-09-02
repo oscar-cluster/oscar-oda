@@ -27,7 +27,7 @@
 #   This script initializes or re-initializes the values in the database
 #   table "oscar" which is for global values.
 
-# $Id: set_global_oscar_values 7286 2008-08-11 22:00:20Z valleegr $
+# $Id$
 
 # This program is implemented in the "package_config_xmls_to_database"
 # script to populate the global informaton of the OSCAR database
