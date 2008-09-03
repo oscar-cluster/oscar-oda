@@ -35,6 +35,9 @@ CREATE TABLE IF NOT EXISTS Clusters(
     installation_date  date,
     name VARCHAR(100)  not null unique,
     oscar_version VARCHAR(100),
+
+    -- field that takes care of the multiple clusters: the "parent_id" represents the cluster id of the super oscar cluster if the oscar cluster is under the super oscar cluster.
+    -- DEPRECATED??
     parent_id  integer  not null DEFAULT '1',
     server_architecture VARCHAR(100),
     server_distribution VARCHAR(100),
@@ -151,7 +154,7 @@ CREATE TABLE IF NOT EXISTS Nics(
     CONSTRAINT Nics_ibfk_2 FOREIGN KEY (network_id) REFERENCES Networks (n_id) ON DELETE CASCADE
 )TYPE=INNODB;
 
--- Pakcages_servicelists
+-- Packages_servicelists
 
 CREATE TABLE IF NOT EXISTS Packages_servicelists(
     group_name VARCHAR(100),
