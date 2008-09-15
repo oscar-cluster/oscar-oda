@@ -2,6 +2,7 @@
 # SELECTION FLAGS #
 ###################
 use constant SELECTION_DEFAULT  => 0; # Selector has not touched the field
+                                      # DEPRECATED??
 use constant UNSELECTED         => 1;
 use constant SELECTED           => 2;
 

@@ -4,6 +4,11 @@
 - Add a files for the definition of all the ODA constants (ODA_Defs.pm)
 - Add the automatic generation and installation of man pages for all ODA
 scripts.
+- Add a new API for the management of OPKGs selection
+- Improve the documentation, we have now a perldoc documentation for
+Database.pm.
+- Add a basic directory structure for unit tests and add a first test related
+to the management of OPKGs.
 
 1.2:
 - Fix different bugs in SQL syntax (introduced during the merge of the OSCAR

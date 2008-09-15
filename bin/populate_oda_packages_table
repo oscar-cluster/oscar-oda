@@ -100,17 +100,20 @@ if (!OSCAR::oda::oda_connect( \%options, \@error_strings)) {
     die "[$0]:\n====> cannot connect to the OSCAR database";
 }
 
-my %fields = ();
-if ((scalar keys %table_fields_hash) == 0) {
-    OSCAR::oda::list_fields(\%options,"Packages",\%fields,\@error_strings);
-    my %packages_hash = %fields;
-    foreach my $field (keys %packages_hash) {
-        if($field eq "__group"){ $field = "group"; }
-        if($field eq "__class"){ $field = "class"; }
-        $packages_hash{$field} = 1;
-    }
-    $table_fields_hash{"Packages"} = \%packages_hash;
-}
+my %table_fields_hash = OSCAR::Database::translate_fields ("Packages");
+# my %fields = ();
+# if ((scalar keys %table_fields_hash) == 0) {
+#     OSCAR::oda::list_fields(\%options,"Packages",\%fields,\@error_strings);
+#     my %packages_hash = %fields;
+#     foreach my $field (keys %packages_hash) {
+#         # Work around for many databases: __group and __class are reserved 
+#         # tokens
+#         if ($field eq "__group") { $field = "group"; }
+#         if ($field eq "__class") { $field = "class"; }
+#         $packages_hash{$field} = 1;
+#     }
+#     $table_fields_hash{"Packages"} = \%packages_hash;
+# }
 
 #
 # All packages are candidates for deletion. Add them to a hash.
@@ -118,7 +121,7 @@ if ((scalar keys %table_fields_hash) == 0) {
 print "Creating the list of packages to delete...\n";
 my %opkg_to_be_deleted = ();
 my @opkgs = ();
-&get_packages(\@opkgs,\%options,\@error_strings, distro => $distro_string);
+&get_packages(\@opkgs, \%options, \@error_strings, distro => $distro_string);
 foreach my $opkg_ref (@opkgs){
     my $name = $$opkg_ref{package};
     $opkg_to_be_deleted{$name} = $$opkg_ref{version};
@@ -146,27 +149,25 @@ foreach my $package (sort(keys(%o))) {
     # remove package from deletion candidates list
     # but remember the version they had
     if ($opkg_to_be_deleted{$package}) {
-	$pkg_version = $opkg_to_be_deleted{$package};
-	delete $opkg_to_be_deleted{$package};
+        $pkg_version = $opkg_to_be_deleted{$package};
+        delete $opkg_to_be_deleted{$package};
     }
 
     print "\n[$0]:\nPACKAGE : <<<<<<<<<<<<< $package >>>>>>>>>>>>>".
-	" : Packages Table\n"
-	if $options{debug};
+          " : Packages Table\n" if $options{debug};
 
     my %opkg = %{$o{$package}};
 
     my $package_id = &is_installed($package,$pkg_version);
     if ($package_id) {
-	&delete_packages_related_table($package, \%options, \@error_strings);
-	&update_packages(\%opkg, "Packages", $package_id, \%table_fields_hash,
-			    \%options, \@error_strings);
+        &delete_packages_related_table($package, \%options, \@error_strings);
+        &update_packages(\%opkg, "Packages", $package_id, \%table_fields_hash,
+                         \%options, \@error_strings);
     } else {
-	print Dumper(\%opkg) if $options{debug};
-	
-	# Insert into "Packages" table
-	&insert_packages(\%opkg, "Packages", \%table_fields_hash,
-			 \%options, \@error_strings);
+        print Dumper(\%opkg) if $options{debug};
+
+        # Insert into "Packages" table
+        &insert_opkgs(\%opkg);
     }
 }
 

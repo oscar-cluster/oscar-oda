@@ -1,0 +1,119 @@
+#!/usr/bin/perl
+#
+
+use strict;
+use OSCAR::Database;
+use warnings "all";
+use Data::Dumper;
+use Carp;
+
+# Name of the fake OPKG we use for testing
+my $fake_opkg = "test-oda-package";
+
+#
+# We connect to the database
+#
+print "Connecting to the database...\n";
+if (OSCAR::Database::database_connect (undef, undef) == 0) {
+    carp "ERROR: Impossible to connect to the database";
+    goto ERROR_EXIT;
+}
+
+#
+# The package test-oda-package should _not_ exist
+#
+print "Checking if the OPKG $fake_opkg is already in the database or not...\n";
+my @res = ();
+if (OSCAR::Database::get_packages(\@res, undef, undef, package => $fake_opkg) == 0) {
+    carp "ERROR: Impossible to query packages";
+    goto ERROR_EXIT;
+}
+if (scalar (@res) > 0) {
+    carp "ERROR: The package $fake_opkg is already in the database, this is not ".
+         " normal, please check its status manually";
+    goto ERROR_EXIT;
+}
+
+#
+# We add the package
+#
+print "Adding the OPKG $fake_opkg...\n";
+my %opkg = (
+          'distro' => 'fc-9-x86_64',
+          'version' => '0.0.0',
+          'packager' => 'Erich Focht <efocht@hpce.nec.com>',
+          'description' => 'A fake OPKG for testing',
+          'package' => $fake_opkg,
+          'group' => 'System Environment/Base',
+          'summary' => 'A fake OPKG for testing',
+          'class' => 'core'
+           );
+
+# We prepare the hash used for adding (detailed OPKG data).
+if (OSCAR::Database::insert_opkgs (\%opkg)) {
+    carp "ERROR: Impossible to add OPKG $fake_opkg";
+    goto ERROR_EXIT;
+}
+
+#
+# Now the package should exist
+#
+print "Checking if the OPKG is actually in the database...\n";
+@res = ();
+if (OSCAR::Database::get_packages(\@res, undef, undef, package => $fake_opkg) == 0) {
+    carp "ERROR: Impossible to query packages";
+    goto ERROR_EXIT;
+}
+if (scalar (@res) == 0) {
+    carp "ERROR: The package $fake_opkg is not in the database, this is not ".
+         " normal, please check its status manually";
+    goto ERROR_EXIT;
+}
+
+#
+# We delete the package
+#
+print "Deleting the OPKG $fake_opkg\n";
+my %sel = (package => $fake_opkg, distro => "fc-9-x86_64",
+           version => "0.0.0" );
+if (OSCAR::Database::delete_package (undef, undef, %sel) == 0) {
+    carp "ERROR: Impossible to delete the package $fake_opkg";
+    goto ERROR_EXIT;
+}
+
+#
+# The package should not exist anymore
+#
+print "Checking if the package really has been deleted from the database...\n";
+@res = ();
+if (OSCAR::Database::get_packages(\@res, undef, undef, package => $fake_opkg) == 0) {
+    carp "ERROR: Impossible to query packages";
+    goto ERROR_EXIT;
+}
+if (scalar (@res) > 0) {
+    carp "ERROR: The package $fake_opkg is still in the database, this is not ".
+         " normal, please check its status manually (" . scalar (@res) . ", " .
+         join (" ", @res) . ")";
+    print Dumper (@res);
+    goto ERROR_EXIT;
+}
+
+#
+# Finally we disconnect from the database
+#
+print "Disconnected from the databse...\n";
+if (OSCAR::Database::database_disconnect (undef, undef) == 0) {
+    die "Impossible to disconnect from the database";
+}
+
+print "Test: Success\n";
+exit 0;
+
+ERROR_EXIT:
+# In case of error, we try to disconnect, but the initial connection may have
+# failed.
+if (OSCAR::Database::database_disconnect (undef, undef) == 0) {
+    warn "Impossible to disconnect from the database";
+}
+
+exit 1;

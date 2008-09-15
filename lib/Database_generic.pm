@@ -20,7 +20,7 @@ package OSCAR::Database_generic;
 # 
 
 #
-# $Id: Database_generic.pm 7133 2008-07-18 19:15:09Z valleegr $
+# $Id$
 #
 
 # This is a new version of ODA with somewhat generic subroutines

@@ -26,7 +26,7 @@ package OSCAR::Database;
 #
 
 #
-# $Id: Database.pm 7142 2008-07-21 20:51:25Z valleegr $
+# $Id$
 #
 
 # This is a new version of ODA
@@ -143,6 +143,7 @@ $options{debug} = 1
               get_unselected_group_packages
               get_unselected_packages
               get_wizard_status
+              insert_opkgs
               insert_packages
               insert_pkg_rpmlist
               is_installed_on_node
@@ -164,6 +165,7 @@ $options{debug} = 1
               set_pkgconfig_var
               set_status
               set_wizard_status
+              translate_fields
               update_image_package_status_hash
               update_image_package_status
               update_node
@@ -178,6 +180,8 @@ $options{debug} = 1
 
               simple_oda_query
               oda_query_single_result
+              set_opkgs_selection_data
+              get_opkgs_selection_data
 	      );
 
 ######################################################################
@@ -312,8 +316,9 @@ sub database_disconnect ($$) {
 #  If you do not specify the "type" of packages, "all" is assumed.      #
 #                                                                       #
 #  Usage: @packages_that_are_selected = list_selected_packages();       #
-#
+#                                                                       #
 # EF: moved here from Package.pm                                        #
+# DEPRECATED???                                                         #
 #########################################################################
 sub list_selected_packages # ($type[,$sel_group]) -> @selectedlist
 {
@@ -511,16 +516,17 @@ sub get_cluster_info_with_name {
 # replace all of them and make the calls more readable.                        #
 #                                                                              #
 # Usage:                                                                       #
-#   get_packages(\@res,\%opts,$err, class => "core", distro => $distro);       #
-#   get_packages(\@res,\%opts,$err, version => $ver, distro => $distro);       #
-#   get_packages(\@res,\%opts,$err, package => $name, version => $ver,         #
+#   get_packages(\@res,\%opts, $err, class => "core", distro => $distro);       #
+#   get_packages(\@res,\%opts, $err, version => $ver, distro => $distro);       #
+#   get_packages(\@res,\%opts, $err, package => $name, version => $ver,         #
 #                distro => $distro);                                           #
 # etc...                                                                       #
 # The selectors all add up and invoked with AND between them.                  #
 #                                                                              #
 # Input: results_ref,                                                          #
 #        options_ref,                                                          #
-#        error_strings_ref                                                     #
+#        error_strings_ref,                                                    #
+#        sel, hash specifying querying options (can be undef if no option).    #
 # Return: 1 if success, 0 else.                                                #
 ################################################################################
 sub get_packages {
@@ -538,7 +544,7 @@ sub get_packages {
     my $config = $oscar_configurator->get_config();
 
     if ($config->{db_type} eq "db") {
-        my $sql = "SELECT * FROM Packages WHERE ";
+        my $sql = "SELECT * FROM Packages";
         if (defined($sel{class})) {
             $sel{__class} = $sel{class};
             delete $sel{class};
@@ -548,7 +554,10 @@ sub get_packages {
             delete $sel{group};
         }
         my @where = map { "$_=\'$sel{$_}\'" } keys(%sel);
-        $sql .= join(" AND ", @where);
+        if (scalar(@where) > 0) {
+            $sql .= " WHERE ";
+            $sql .= join(" AND ", @where);
+        }
         oscar_log_subsection (">$0:\n".
             "====> in Database::get_packagess SQL : $sql\n")
             if $$options_ref{debug};
@@ -558,6 +567,9 @@ sub get_packages {
             "====> getting OPKGs info from configuration file\n")
             if $$options_ref{debug};
         carp "ERROR: not yet implemented ($0)\n";
+        return 0;
+    } else {
+        carp "ERROR: Unknown database type ($config->{db_type})";
         return 0;
     }
 }
@@ -735,10 +747,10 @@ sub get_node_package_status_with_group_node ($$$$$) {
                  "AND Node_Package_Status.node_id=Nodes.id ".
                  "AND Nodes.name='$node'";
     print "DB_DEBUG>$0:\n====> in Database::get_node_package_status_with_group_node SQL : $sql\n" if $$options_ref{debug};
-    return do_select($sql,$results, $options_ref, $error_strings_ref);
+    return do_select($sql, $results, $options_ref, $error_strings_ref);
 }
 
-sub get_node_package_status_with_node {
+sub get_node_package_status_with_node ($$$$$) {
     my ($node,
         $results,
         $options_ref,
@@ -774,7 +786,7 @@ sub get_node_package_status_with_node_package {
     print "DB_DEBUG>$0:\n====> in ". 
         "Database::get_node_package_status_with_node_package SQL : $sql\n" 
         if $$options_ref{debug};
-    return do_select($sql,$results, $options_ref, $error_strings_ref);
+    return do_select($sql, $results, $options_ref, $error_strings_ref);
 }
 
 # TODO: code duplication with get_node_package_status_with_node_package, we
@@ -1102,6 +1114,7 @@ sub delete_group_node ($$$) {
 # Deselect an opkg from a group.
 # Somewhat misleading name...
 #
+# DEPRECATED??
 sub delete_group_packages ($$$$) {
     my ($group,
         $opkg,
@@ -1188,12 +1201,85 @@ sub delete_node_packages {
 }
 
 ################################################################################
-# This function includes given OSCAR Packages into the database                #
+# Translate some table fields name by token that are not reserved by           #
+# databases.                                                                   #
+# If a field name is "group", "__" should be added in front of $key to avoid   #
+# the conflict of reserved keys.                                               #
+#                                                                              #
+# Input: table, name of the table for which we want to translate forbidden     #
+#               field name (e.g., Packages).                                   #
+# Return: a hash with the list of table's field, with the guarantee no         #
+#         forbidden keywords are used; undef if error.                         #
+#                                                                              #
+# TODO: we should describe the returned hash, but right now i (GV) do not know #
+#       yet what the hash looks like.                                          #
+################################################################################
+sub translate_fields ($) {
+    my $table = shift;
+    my %fields = ();
+    my %table_fields_hash = ();
+
+    OSCAR::oda::list_fields(\%options, "$table", \%fields, undef);
+    my %packages_hash = %fields;
+    foreach my $field (keys %packages_hash) {
+        # Work around for many databases: __group and __class are reserved 
+        # tokens
+        if ($field eq "__group") { $field = "group"; }
+        if ($field eq "__class") { $field = "class"; }
+        $packages_hash{$field} = 1;
+    }
+    $table_fields_hash{"$table"} = \%packages_hash;
+
+    return %table_fields_hash;
+}
+
+################################################################################
+# This function aims at simplifying the insert_packages function, with the     #
+# ultimate goal of providing a simpler API.                                    #
+#                                                                              #
+# Input: opkgs, a reference to a hash which has the following contents:        #
+#               my %opkg = %{$o{$package}};                                    #
+#               where $o is the hash of OpkgDB::opkg_hash_available and        #
+#               $package is one the oscar package name. For an example,        #
+#               please refer to the perldoc of this module.                    #
+# Return: 0 if success, -1 else.                                               #
+#                                                                              #
+# TODO: do we want to have a "options" parameter?                              #
+################################################################################
+sub insert_opkgs ($) {
+    my $opkgs = shift;
+    my $table = "Packages";
+
+    my %table_fields_hash = OSCAR::Database::translate_fields ($table);
+    if (insert_packages ($opkgs,
+                         $table,
+                         \%table_fields_hash,
+                         undef,
+                         undef) == 0) {
+        carp "ERROR: Impossible to include some packages";
+        return -1;
+    }
+    return 0;
+}
+
+################################################################################
+# This function includes given OSCAR Packages into the database.               #
+#                                                                              #
+# Input: passed_ref, a reference to a hash which has the following contents:   #
+#                    my %opkg = %{$o{$package}};                               #
+#                    where $o is the hash of OpkgDB::opkg_hash_available and   #
+#                    $package is one the oscar package name. For an example,   #
+#                    please refer to the perldoc of this module.               #
+#        table_fields_ref, a reference to a hash gathering the list of table   #
+#                          fields that need to be translated (typically        #
+#                          __group and __class are reserved, we cannot use     #
+#                          them).                                              #
+# Return: 1 if success, 0 else.                                                #
 #                                                                              #
 # TODO: extend this function to the case where we do not have a real db but    #
 #       configuration files.                                                   #
 ################################################################################
-sub insert_packages ($$$$$$$) {
+sub insert_packages ($$$$$) {
     my ($passed_ref, $table, $table_fields_ref,
         $passed_options_ref, $passed_errors_ref) = @_;
 
@@ -1207,8 +1293,6 @@ sub insert_packages ($$$$$$$) {
     my $flag = 0;
     my $comma = "";
     foreach my $key (keys %$passed_ref) {
-        # If a field name is "group", "__" should be added
-        # in front of $key to avoid the conflict of reserved keys
 
         if ($$table_fields_ref{$table}->{$key}
         && $key ne "package-specific-attribute") {
@@ -1293,7 +1377,7 @@ sub update_node ($$$$) {
         $comma = "," if $flag;
         $sql .= "$comma $field='$value'";
         $flag = 1;
-    }    
+    }
     $sql .= " WHERE name='$node' ";
     print "DB_DEBUG>$0:\n====> in Database::update_node SQL : $sql\n" 
         if $$options_ref{debug};
@@ -1824,6 +1908,7 @@ sub set_group_nodes ($$$$) {
 }
 
 # Return: 1 if success, 0 else.
+# DEPRECATED??
 sub set_group_packages {
     my ($group,
         $package,
@@ -2759,6 +2844,59 @@ sub create_database_tables ($$) {
     }
 }
 
+################################################################################
+# Update selection data for one or many OPKGs.                                 #
+#                                                                              #
+# Input: selection_data, data from Selector representing the user selection of #
+#                        OPKGs. The data is implemented via a hash with the    #
+#                        list of OPKGs and their selection information.        #
+#                        Example: {'lam' => SELECTED, 'openmpi' => UNSELECTED} #
+# Return: 0 if success, -1 else.                                               #
+################################################################################
+sub update_selection_data (%) {
+    return 0;
+}
+
+################################################################################
+# Set OPKG selection data for a set of OPKGs. The possible flags are available #
+# in ODA_Defs.pm                                                               #
+#                                                                              #
+# Input: A hash with the list of OPKGs and their selection information.        #
+#        Example: { 'lam' => SELECTED, 'openmpi' => UNSELECTED }               #
+# Return: 0 if success, -1 else.                                               #
+################################################################################
+sub set_opkgs_selection_data (%) {
+    my %selection_data = @_;
+
+    # For each OPKG, we first check is the OPKG is already in the database
+    # (Packages table), if not we add it. Then we add or update the selection
+    # info for that OPKG.
+    my (@res, %opts, $err);
+    for my $opkg ( keys %selection_data ) {
+        if (get_packages(\@res, \%opts, $err, package => $opkg) == 0) {
+            my %opkg_data = ("$opkg" => "1");
+            my (%table_fields_hash, @error_strings);
+            if (insert_opkgs (\%opkg_data)) {
+                carp "ERROR: Impossible to insert the new OPKGs";
+                return -1;
+            }
+        }
+        if (update_selection_data (%selection_data)) {
+            carp "ERROR: Impossible to update selection data for $opkg";
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+# Return: hash with OPKG selection data, undef if error.
+sub get_opkgs_selection_data () {
+    my %selection_data;
+
+    return %selection_data;
+}
+
 # # TODO GV: finish that!!!!!
 # sub populate_database_with_opkgs ($$$$$$$) {
 #     my ($package,
@@ -2949,3 +3087,103 @@ sub create_database_tables ($$) {
 # }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Database - Perl module for the utilisation of the OSCAR database.
+
+=head1 APIs Description
+
+=head2 Database Connection/Disconnection API
+
+The function database_connect allows the connection to the database. This
+initialization step is mandatory before to try to read/write data from/to the
+database:
+
+database_connect ( $options_ref, $error_strings_ref );
+
+where options_ref is a reference to a hash representing database options, and
+error_strings_ref is a reference to an array that specifies extra debugging
+information. Those two parameters can be undefined.
+The function returns non-zero if success.
+
+The function database_disconnect allows the disconnection from the database.
+This initialization step is mandatory to finalize the database usage:
+
+database_disconnect ( $options_ref, $error_strings_ref );
+
+where options_ref is a reference to a hash representing database options, and
+error_strings_ref is a reference to an array that specifies extra debugging
+information. Those two parameters can be undefined.
+The function returns non-zero if success.
+
+=head2 OPKG Management API
+
+=head3 OPKG Addition
+
+To add a specific OPKG:
+insert_opkgs (\%opkgs);
+where opkgs is a hash gathering all OPKG data which has the following contents:
+my %opkg = %{$o{$package}};
+where $o is the hash of OpkgDB::opkg_hash_available and $package is one the 
+oscar package name. So, %opkg would look like this (as an example, we take 
+yume):
+
+$VAR1 = {
+          'distro' => 'fc-9-x86_64',
+          'version' => '2.7-1',
+          'packager' => 'Erich Focht <efocht@hpce.nec.com>',
+          'description' => ' Tool for setting up, exporting yum repositories and 
+executing yum commands for only these repositories. Use it as high level RPM 
+replacement which resolves dependencies automatically. This tool is very useful 
+for clusters. It can: - prepare an rpm repository - export it through apache - 
+execute yum commands applying only to this repository (locally) - execute yum 
+commands on the cluster nodes applying only to this repository. This makes 
+installing packages, creating cluster node images, updating revisions much 
+simpler than with rpm.
+
+This is the server part of yume.
+
+',
+          'package' => 'yume',
+          'group' => 'System Environment/Base',
+          'summary' => 'Tools for rpm repository control, image creation and 
+          'maintenance',
+          'class' => 'core'
+        };
+
+=head3 OPKG Removal
+
+delete_package ( $options_ref, $errors_ref, %sel );
+
+where:
+
+- options_ref is a reference to a hash specifying the action options (may be
+              undef),
+
+- $errors_ref is a reference to an array giving extra debugging information that
+              needs to be displayed when errors occur,
+
+- sel is a hash describing the package, a typical example is %sel = (package => 
+      $pkg, distro => $distro_string, version => $version ),
+
+=head2 OPKG Selection - Selector API
+
+Data from Selector is saved in the Group_Packages table: the OPKGs can actually
+be selected before the definition of compute nodes; this selection data is in
+fact a fairly static configuration data, and is not related to the tracking of
+the status of OPKGs on nodes during and after deployment.
+
+=head3 API for Setting Selection Information
+
+To set selection information, the following function is available:
+my $return_code = OSCAR::Database::set_opkgs_selection_data (%opkgs_data);
+
+=head3 API for Getting Selection Information
+
+To get selection information, the following function is available:
+my %results = OSCAR::Database::get_opkgs_selection ();
+
+=cut
