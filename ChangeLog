@@ -7,8 +7,8 @@ scripts.
 - Add a new API for the management of OPKGs selection
 - Improve the documentation, we have now a perldoc documentation for
 Database.pm.
-- Add a basic directory structure for unit tests and add a first test related
-to the management of OPKGs.
+- Add a basic directory structure for unit tests and add a first set of tests
+related to the management of OPKGs and Selector.
 
 1.2:
 - Fix different bugs in SQL syntax (introduced during the merge of the OSCAR
