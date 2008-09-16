@@ -2,7 +2,8 @@
 # SELECTION FLAGS #
 ###################
 use constant SELECTION_DEFAULT  => 0; # Selector has not touched the field
-                                      # DEPRECATED??
+                                      # used during the creation of new entries
+                                      # in ODA.
 use constant UNSELECTED         => 1;
 use constant SELECTED           => 2;
 

@@ -391,7 +391,7 @@ sub get_client_nodes {
     my $sql = "SELECT Nodes.* FROM Nodes ".
             "WHERE group_name='oscar_clients'";
     print "DB_DEBUG>$0:\n====> in Database::get_client_nodes SQL : $sql\n" if $$options_ref{debug};
-    return do_select($sql,$results_ref, $options_ref, $error_strings_ref);
+    return do_select($sql, $results_ref, $options_ref, $error_strings_ref);
 }
 
 sub get_nodes {
@@ -400,7 +400,7 @@ sub get_nodes {
         $error_strings_ref) = @_;
     my $sql = "SELECT * FROM Nodes";
     print "DB_DEBUG>$0:\n====> in Database::get_nodes SQL : $sql\n" if $$options_ref{debug};
-    return do_select($sql,$results_ref, $options_ref, $error_strings_ref);
+    return do_select($sql, $results_ref, $options_ref, $error_strings_ref);
 }
 
 sub get_client_nodes_info {
@@ -410,7 +410,7 @@ sub get_client_nodes_info {
         $error_strings_ref) = @_;
     my $sql = "SELECT * FROM Nodes WHERE name!='$server'";
     print "DB_DEBUG>$0:\n====> in Database::get_client_nodes_info SQL : $sql\n" if $$options_ref{debug};
-    return do_select($sql,$results_ref, $options_ref, $error_strings_ref);
+    return do_select($sql, $results_ref, $options_ref, $error_strings_ref);
 }
 
 
@@ -420,7 +420,7 @@ sub get_networks {
         $error_strings_ref)= @_;
     my $sql ="SELECT * FROM Networks ";
     print "DB_DEBUG>$0:\n====> in Database::get_networks SQL : $sql\n" if $$options_ref{debug};
-    return do_select($sql,$results, $options_ref, $error_strings_ref);
+    return do_select($sql, $results, $options_ref, $error_strings_ref);
 }
 
 sub get_nics_info_with_node {
@@ -2693,11 +2693,13 @@ sub single_dec_locked ($$$$$) {
 # Which is the converted into an array: [ 1 ].                                 #
 #                                                                              #
 # Input: - sql, string representing the SQL query.                             #
-#        - elt, hash key based on which we will create the result array.       #
+#        - elt, a filter we want to use to "parse" the result. For instance,   #
+#               "cluster_id" means we want to have only values of the          #
+#               "cluster_id" field for a given query.                          #
 # Output: array of results, or undef.                                          #
 ################################################################################
 sub simple_oda_query ($$) {
-    (my $sql, my $elt) = @_;
+    my ($sql, $elt) = @_;
     my @list;
 
     my $options_ref;
@@ -2844,6 +2846,10 @@ sub create_database_tables ($$) {
     }
 }
 
+#
+# SELECTOR API
+#
+
 ################################################################################
 # Update selection data for one or many OPKGs.                                 #
 #                                                                              #
@@ -2854,7 +2860,64 @@ sub create_database_tables ($$) {
 # Return: 0 if success, -1 else.                                               #
 ################################################################################
 sub update_selection_data (%) {
+    my %selection_data = shift;
+
+    # We have two groups impacted by the selection: the headnode and the compute
+    # nodes.
+    my @groups = ("oscar_server", "oscar_clients");
+
+    # We store the selection for those groups
+    foreach my $group (@groups) {
+        foreach my $opkg ( keys %selection_data ) {
+            my %package_data = ( group => $group, package => $opkg );
+            my $current_selection = get_current_selection ( $opkg );
+            my $sql;
+            if (!defined ($current_selection)) {
+                # We do not have yet any selection data for that OPKG
+                $sql = "INSERT INTO ".
+                       "Group_Packages(group_name, package, selected) VALUES (".
+                       "'$group', '$opkg', '$selection_data{$opkg}'" .
+                       ")";
+                if (!OSCAR::Database_generic::do_insert($sql,
+                        "Group_Packages", undef, undef)) {
+                    carp "ERROR: Failed to insert selection data ($sql)";
+                    return -1;
+                }
+            } elsif ($current_selection != $selection_data{$opkg}) {
+                # The info is not up-to-date, we need to update.
+                $sql = "UPDATE Group_Packages SET ".
+                       "selected='$selection_data{$opkg}' ".
+                       "WHERE group_name='$group' AND package='$opkg'";
+                if (!&do_update($sql, "Group_Packages", undef, undef)) {
+                    carp "ERROR: Impossible to update selection data ($sql)";
+                    return -1;
+                }
+            }
+        }
+    }
+
     return 0;
+}
+
+################################################################################
+# Query the database in order to get the current selection data for a given    #
+# OPKG.                                                                        #
+#                                                                              #
+# Input: opkg, name of the OPKG we are looking for.                            #
+#        group, node group id (tyically "oscar_server" or "oscar_clients".     #
+# Return: - undef if no selection data is stored in the database for that      #
+#           specific OPKG.                                                     #
+#         - the selection code if a record is available in the database (see   #
+#           ODA_Defs.pm for more details about the possible codes).            #
+################################################################################
+sub get_current_selection (%) {
+    my ($opkg, $group) = @_;
+
+    my $sql = "SELECT * FROM Group_Packages WHERE package='$opkg' and ".
+              "group_name='$group'";
+    my $current_selection = oda_query_single_result ($sql, "selected");
+
+    return $current_selection;
 }
 
 ################################################################################
@@ -2874,7 +2937,12 @@ sub set_opkgs_selection_data (%) {
     my (@res, %opts, $err);
     for my $opkg ( keys %selection_data ) {
         if (get_packages(\@res, \%opts, $err, package => $opkg) == 0) {
-            my %opkg_data = ("$opkg" => "1");
+            carp "ERROR: Impossible to query database";
+            return -1;
+        }
+        if (scalar (@res) == 0) {
+            # TODO: we should save real OPKG data and not only the name
+            my %opkg_data = (package => "$opkg");
             my (%table_fields_hash, @error_strings);
             if (insert_opkgs (\%opkg_data)) {
                 carp "ERROR: Impossible to insert the new OPKGs";
@@ -2890,9 +2958,29 @@ sub set_opkgs_selection_data (%) {
     return 0;
 }
 
-# Return: hash with OPKG selection data, undef if error.
-sub get_opkgs_selection_data () {
+################################################################################
+# Return all selection data, i.e., the content of the Group_Packages table.    #
+#                                                                              #
+# Return: hash with OPKG selection data, undef if error.                       #
+#         Example: { 'lam' => SELECTED, 'openmpi' => UNSELECTED }              #
+################################################################################
+sub get_opkgs_selection_data (@) {
+    my @opkgs = @_;
     my %selection_data;
+
+    my $sql = "SELECT * FROM Group_Packages WHERE group_name='oscar_server'";
+    my @res = ();
+    if (OSCAR::Database_generic::do_select ($sql, \@res, undef, undef) == 0) {
+        carp "ERROR: Impossible to query Group_Packages ($sql)\n";
+        return undef;
+    }
+    foreach my $ref (@res){
+        my $opkg = $$ref{package};
+        my $cur_selection = $$ref{selected};
+        if (OSCAR::Utils::is_element_in_array ($opkg, @opkgs)) {
+            $selection_data{$opkg} = $cur_selection;
+        }
+    }
 
     return %selection_data;
 }

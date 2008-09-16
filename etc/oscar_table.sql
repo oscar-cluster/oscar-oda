@@ -227,6 +227,8 @@ CREATE TABLE IF NOT EXISTS Group_Nodes(
 )TYPE=INNODB;
 
 -- Group_Packages
+-- This table is used to saved information from Selector, i.e., information
+-- about selected OPKGs.
 CREATE TABLE IF NOT EXISTS Group_Packages(
     group_name VARCHAR(100) not null,
     package  VARCHAR(100) not null,

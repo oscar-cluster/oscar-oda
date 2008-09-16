@@ -1,0 +1,98 @@
+#!/usr/bin/perl
+#
+
+# NOTE: to remove all selection data from the database related to this test, 
+# simply execute:
+# DELETE FROM Packages WHERE package='test-oda-package';
+
+use OSCAR::Database;
+use OSCAR::ODA_Defs;
+use warnings "all";
+use Carp;
+
+# Name of the fake OPKG we use for testing
+my $fake_opkg = "test-oda-package";
+
+#
+# We connect to the database
+#
+print "Connecting to the database...\n";
+if (OSCAR::Database::database_connect (undef, undef) == 0) {
+    carp "ERROR: Impossible to connect to the database";
+    goto ERROR_EXIT;
+}
+
+#
+# The fake package should not have any selection data
+#
+print "Checking the fake OPKG does not have any selection data...\n";
+my @opkgs = ( $fake_opkg );
+my %selection_data = OSCAR::Database::get_opkgs_selection_data (@opkgs);
+if (keys (%selection_data) > 0) {
+    carp "ERROR: selection data for $fake_opkg already in database, ".
+         "this is not normal";
+    goto ERROR_EXIT;
+}
+
+#
+# Now we save selection data
+#
+print "Storing fake selection data...\n";
+my %new_selection_data = ( $fake_opkg => OSCAR::ODA_Defs::SELECTED );
+if (OSCAR::Database::set_opkgs_selection_data (%new_selection_data)) {
+    carp "ERROR: Impossible to set selection data";
+    goto ERROR_EXIT;
+}
+
+#
+# Now we check the stored value.
+#
+print "Reading the selection data from database for verification...\n";
+my %selection_data2 = OSCAR::Database::get_opkgs_selection_data (@opkgs);
+if (keys (%selection_data2) != 1) {
+    carp "ERROR: selection data for $fake_opkg is not in the database, ".
+         "this is not normal";
+    goto ERROR_EXIT;
+}
+
+#
+# Now we delete the selection info.
+#
+print "Deleting selection data for $fake_opkg...\n";
+my %sel = (package => $fake_opkg);
+if (OSCAR::Database::delete_package (undef, undef, %sel) == 0) {
+    carp "ERROR: Impossible to delete selection data from the database";
+    goto ERROR_EXIT;
+}
+
+#
+# Now we check if the values are actually deleted
+#
+print "Checking if values really have been deleted...\n";
+%selection_data2 = OSCAR::Database::get_opkgs_selection_data (@opkgs);
+if (keys (%selection_data) != 0) {
+    carp "ERROR: selection data for $fake_opkg is still in the database, ".
+         "this is not normal";
+    goto ERROR_EXIT;
+}
+
+#
+# Finally we disconnect from the database
+#
+print "Disconnected from the database...\n";
+if (OSCAR::Database::database_disconnect (undef, undef) == 0) {
+    die "Impossible to disconnect from the database";
+}
+
+print "Test $0: Success\n";
+exit 0;
+
+ERROR_EXIT:
+# In case of error, we try to disconnect, but the initial connection may have
+# failed.
+if (OSCAR::Database::database_disconnect (undef, undef) == 0) {
+    warn "Impossible to disconnect from the database";
+}
+
+exit 1;
+

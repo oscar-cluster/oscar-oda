@@ -101,12 +101,12 @@ if (scalar (@res) > 0) {
 #
 # Finally we disconnect from the database
 #
-print "Disconnected from the databse...\n";
+print "Disconnected from the database...\n";
 if (OSCAR::Database::database_disconnect (undef, undef) == 0) {
     die "Impossible to disconnect from the database";
 }
 
-print "Test: Success\n";
+print "Test $0: Success\n";
 exit 0;
 
 ERROR_EXIT:
