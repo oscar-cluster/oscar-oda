@@ -693,7 +693,7 @@ sub get_selected_packages ($$$$) {
     my $sql = "SELECT Node_Package_Status.* " .
              "From Node_Package_Status, Nodes ".
              "WHERE Node_Package_Status.node_id=Nodes.id ".
-             "AND Node_Package_Status.selected=".SELECTED." ".
+             "AND Node_Package_Status.selected=".SELECTED()." ".
              "AND Nodes.name='$node_name'";
     print "DB_DEBUG>$0:\n====> in Database::is_installed_on_node SQL : $sql\n" if $$options_ref{debug};
     return do_select($sql,$results, $options_ref, $error_strings_ref);
@@ -716,7 +716,7 @@ sub get_unselected_packages ($$$$) {
     my $sql = "SELECT Node_Package_Status.* " .
              "From Node_Package_Status, Nodes ".
              "WHERE Node_Package_Status.node_id=Nodes.id ".
-             "AND Node_Package_Status.selected=".UNSELECTED." ".
+             "AND Node_Package_Status.selected=".UNSELECTED()." ".
              "AND Nodes.name='$node_name'";
     print "DB_DEBUG>$0:\n====> in Database::is_installed_on_node SQL : $sql\n" if $$options_ref{debug};
     return do_select($sql,$results, $options_ref, $error_strings_ref);
@@ -1394,7 +1394,7 @@ sub update_node_package_status ($$$$$$) {
         $errors_ref,
         $selected) = @_;
 
-    $requested = SHOULD_NOT_BE_INSTALLED if ! $requested;
+    $requested = SHOULD_NOT_BE_INSTALLED() if ! $requested;
     my $packages;
     if (ref($passed_pkg) eq "ARRAY"){
         $packages = $passed_pkg;
@@ -1420,11 +1420,11 @@ sub update_node_package_status ($$$$$$) {
             print "DB_DEBUG>$0:\n====> in ".
                   "Database::update_node_package_status Updating the status of ".
                   "$opkg to \"";
-            if ($requested == FINISHED) {
+            if ($requested == FINISHED()) {
                 print "installed";
-            } elsif ($requested == SHOULD_BE_INSTALLED) {
+            } elsif ($requested == SHOULD_BE_INSTALLED()) {
                 print "should be installed";
-            } elsif ($requested == SHOULD_NOT_BE_INSTALLED) {
+            } elsif ($requested == SHOULD_NOT_BE_INSTALLED()) {
                 print "should not be installed";
             } else {
                 print "... unknown status: ($requested)";
@@ -1442,7 +1442,8 @@ sub update_node_package_status ($$$$$$) {
             my $pstatus_ref = pop @results;
             my $ex_status = $$pstatus_ref{ex_status};
             $field_value_hash{requested} = $ex_status
-                if($ex_status == FINISHED && $requested == SHOULD_BE_INSTALLED);
+                if($ex_status == FINISHED()
+                    && $requested == SHOULD_BE_INSTALLED());
             $field_value_hash{ex_status} = $$pstatus_ref{requested};
 
             # If $requested is 8(finished), set the "ex_status" to 8
@@ -1453,7 +1454,8 @@ sub update_node_package_status ($$$$$$) {
             # NOTE : the "selected" field is only for PackageInUn
             #
             $field_value_hash{ex_status} = $requested 
-                if ($requested == FINISHED && $ex_status != SHOULD_BE_INSTALLED);
+                if ($requested == FINISHED()
+                    && $ex_status != SHOULD_BE_INSTALLED());
             $field_value_hash{selected} = $selected if ($selected);
             my $where = "WHERE node_id=$node_id AND package=\'$opkg\'";
             if (!&update_table($options_ref,
@@ -1699,7 +1701,7 @@ sub update_image_package_status {
         $errors_ref,
         $selected) = @_;
 
-    $requested = SHOULD_NOT_BE_INSTALLED if ! $requested;
+    $requested = SHOULD_NOT_BE_INSTALLED() if ! $requested;
     my $packages;
     if (ref($passed_pkg) eq "ARRAY"){
         $packages = $passed_pkg;
@@ -1726,9 +1728,9 @@ sub update_image_package_status {
                 "of $opkg to \"";
             if ($requested == 8) {
                 print "installed";
-            } elsif ($requested == SHOULD_BE_INSTALLED) {
+            } elsif ($requested == SHOULD_BE_INSTALLED()) {
                 print "should be installed";
-            } elsif ($requested == SHOULD_NOT_BE_INSTALLED) {
+            } elsif ($requested == SHOULD_NOT_BE_INSTALLED()) {
                 print "should not be installed";
             } else {
                 print "... unknown status ($requested)";
@@ -1750,7 +1752,8 @@ sub update_image_package_status {
             my $pstatus_ref = pop @results;
             my $ex_status = $$pstatus_ref{ex_status};
             $field_value_hash{requested} = $ex_status
-                if($ex_status == FINISHED && $requested == SHOULD_BE_INSTALLED);
+                if($ex_status == FINISHED()
+                    && $requested == SHOULD_BE_INSTALLED());
             $field_value_hash{ex_status} = $$pstatus_ref{requested};
 
             # If $requested is 8(finished), set the "ex_status" to 8
@@ -1761,7 +1764,8 @@ sub update_image_package_status {
             # NOTE : the "selected" field is only for PackageInUn
             #
             $field_value_hash{ex_status} = $requested 
-                if ($requested == FINISHED && $ex_status != SHOULD_BE_INSTALLED);
+                if ($requested == FINISHED()
+                    && $ex_status != SHOULD_BE_INSTALLED());
             $field_value_hash{selected} = $selected if ($selected);
             if (!&update_table($options_ref,
                 $table,
@@ -2860,7 +2864,7 @@ sub create_database_tables ($$) {
 # Return: 0 if success, -1 else.                                               #
 ################################################################################
 sub update_selection_data (%) {
-    my %selection_data = shift;
+    my %selection_data = @_;
 
     # We have two groups impacted by the selection: the headnode and the compute
     # nodes.
@@ -2949,11 +2953,14 @@ sub set_opkgs_selection_data (%) {
                 return -1;
             }
         }
-        if (update_selection_data (%selection_data)) {
-            carp "ERROR: Impossible to update selection data for $opkg";
-            return -1;
-        }
     }
+
+    # Then we store selection data
+    if (update_selection_data (%selection_data)) {
+        carp "ERROR: Impossible to update selection data";
+        return -1;
+    }
+
 
     return 0;
 }
