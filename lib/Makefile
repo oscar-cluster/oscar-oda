@@ -10,8 +10,8 @@ all:
 	for dir in ${SUBDIRS} ; do ( cd $$dir ; ${MAKE} all ) ; done
 
 install:
-	@install -d -m 0755 $(DESTDIR)$(LIBDIR)/OSCAR
-	@install    -m 0755 $(FILES) $(DESTDIR)$(LIBDIR)/OSCAR
+	install -d -m 0755 $(DESTDIR)$(LIBDIR)/OSCAR
+	install    -m 0755 $(FILES) $(DESTDIR)$(LIBDIR)/OSCAR
 	for dir in ${SUBDIRS} ; do ( cd $$dir ; ${MAKE} install ) ; done
 
 uninstall:
