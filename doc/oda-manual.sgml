@@ -1,0 +1,49 @@
+<!DOCTYPE article PUBLIC " -//OASIS//DTD DocBook V3.1//EN" "http://oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+
+<article class="whitepaper" id="documentation" lang="en">
+
+  <artheader> <title>OSCAR Selector Manual</title>
+
+    <author>
+      <firstname>Geoffroy</firstname>
+      <surname>Vallee</surname>
+      <affiliation>
+        <address><email>valleegr@ornl.gov</email></address>
+      </affiliation>
+    </author>
+
+  </artheader>
+
+<sect1><title>Implementation Details</title>
+  <sect2><title>Code Organization</title>
+    <para>
+      <programlisting>
+        <![CDATA[
+      .
+      |-- bin
+      |-- debian
+      |-- doc
+      |-- etc
+      |-- lib
+      |   `-- ODA
+      |-- scripts
+      `-- testing
+      ]]>
+      </programlisting>
+    </para>
+    <para>
+      The <emphasis>Database.pm</emphasis> Perl module provides the API for
+      developers in order to interact with the OSCAR Database.
+    </para>
+  </sect2>
+  <sect2><title>Testing</title>
+    <para>
+      Selector source code provides testing mechanisms, actually unit tests,
+      that aims to provide basic testing capabilities for specific Selector
+      features. All the tests are in the <emphasis>testing</emphasis>, one can
+      execute them individually.
+    </para>
+  </sect2>
+</sect1>
+
+</article>
