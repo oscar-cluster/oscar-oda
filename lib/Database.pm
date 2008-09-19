@@ -2961,7 +2961,6 @@ sub set_opkgs_selection_data (%) {
         return -1;
     }
 
-
     return 0;
 }
 
@@ -3279,6 +3278,6 @@ my $return_code = OSCAR::Database::set_opkgs_selection_data (%opkgs_data);
 =head3 API for Getting Selection Information
 
 To get selection information, the following function is available:
-my %results = OSCAR::Database::get_opkgs_selection ();
+my %results = OSCAR::Database::get_opkgs_selection_data ();
 
 =cut
