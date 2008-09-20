@@ -2873,8 +2873,7 @@ sub update_selection_data (%) {
     # We store the selection for those groups
     foreach my $group (@groups) {
         foreach my $opkg ( keys %selection_data ) {
-            my %package_data = ( group => $group, package => $opkg );
-            my $current_selection = get_current_selection ( $opkg );
+            my $current_selection = get_current_selection ( $opkg, $group );
             my $sql;
             if (!defined ($current_selection)) {
                 # We do not have yet any selection data for that OPKG
@@ -2938,9 +2937,10 @@ sub set_opkgs_selection_data (%) {
     # For each OPKG, we first check is the OPKG is already in the database
     # (Packages table), if not we add it. Then we add or update the selection
     # info for that OPKG.
-    my (@res, %opts, $err);
+    my (@res, %opts);
     for my $opkg ( keys %selection_data ) {
-        if (get_packages(\@res, \%opts, $err, package => $opkg) == 0) {
+        my %opts = (debug => 0);
+        if (get_packages(\@res, \%opts, undef, package => '$opkg') == 0) {
             carp "ERROR: Impossible to query database";
             return -1;
         }
@@ -2991,194 +2991,6 @@ sub get_opkgs_selection_data (@) {
     return %selection_data;
 }
 
-# # TODO GV: finish that!!!!!
-# sub populate_database_with_opkgs ($$$$$$$) {
-#     my ($package,
-#         $package_version,
-#         $xml_ref,
-#         $directory_argument,
-#         $nics_results,
-#         $options,
-#         $error_strings) = @_;
-# 
-#     my $package_ref = 
-#         get_package_info_with_name($package,
-#                                     $options,
-#                                     $error_strings,
-#                                     $package_version);
-#     my $package_id = $$package_ref{id};
-# 
-#     # Insert into "Packages_rpmlists" table
-#     insert_pkg_rpmlist($xml_ref->{"binary-package-list"},
-#                         "Packages_rpmlists",
-#                         $package_id,
-#                         $options,$error_strings)
-#         if $xml_ref->{"binary-package-list"};
-# 
-#     # Insert into "Group_Packages" table at the initial process.
-#     # If a packaged is added with the arguments to this script, 
-#     # then initial process of oscar database is finished.
-#     # The newly downloaded packages is not determined to
-#     # add to the selected "Group" (i.e., Default).
-#     my %field_value_hash = ();
-#     if ( ! $directory_argument && !@$nics_results ){
-#         %field_value_hash = ( "group_name"=>$DEFAULT,
-#                                 "package_id"=>"$package_id",
-#                                 "selected" => 1);
-#         push  @error_strings,
-#                 "Inserting $package with package_id ($package_id), group_name ($DEFAULT)"
-#                 . " and selected flag (1) into Group_Packages table";
-#         insert_into_table ($options,"Group_Packages",\%field_value_hash,$error_strings);
-#         $error_strings = ();
-#     }
-# 
-#     # Insert into "Packages_[conflicts|provides|requires]" table
-#     foreach my $tag ("conflicts", "provides", "requires"){
-#         if ( $xml_ref->{$tag} ){ 
-#             my $tag_ref = $xml_ref->{$tag};
-#             foreach my $each_tag (keys %$tag_ref){
-#                 if( $each_tag eq "name" || $each_tag eq "type" ){
-#                     %field_value_hash = ( "p1_id"=>"$package_id",
-#                                             "p2_name"=>$tag_ref->{name},
-#                                             "type"=>$tag_ref->{type} );
-#                     insert_into_table ($options,
-#                                         "Packages_$tag",
-#                                         \%field_value_hash,
-#                                         $error_strings);
-#                     last;
-#                 } else {
-#                     # Handling a case when the conflicts tag is used more 
-#                     # than one time.
-#                     %field_value_hash = ( "p1_id"=>"$package_id",
-#                                             "p2_name"=>$each_tag,
-#                                             "type"=>$tag_ref->{$each_tag}->{type} );
-#                     insert_into_table ($options,
-#                                         "Packages_$tag",
-#                                         \%field_value_hash,
-#                                         $error_strings);
-#                 }
-#             }
-#         }
-#     }
-# 
-#     # Insert into "Packages_servicelists" table
-#     if( $xml_ref->{servicelist} ){
-#         my $service_ref = $xml_ref->{servicelist};
-#         if( ref($service_ref) eq "ARRAY") {
-#             foreach my $ref (@$service_ref){
-#                 my $value = $ref->{service};
-#                 my $group = ($ref->{filter}->{group}?$ref->{filter}->{group}:"all");
-#                 %field_value_hash = ( "package_id"=>"$package_id",
-#                                         "group_name"=>$group,
-#                                         "service"=>$value);
-#                 insert_into_table (\%options,"Packages_servicelists",\%field_value_hash,\@error_strings);
-#             }
-#         } else {
-#             my $value = $service_ref->{service}; 
-#             my $group = ($service_ref->{filter}->{group}?$service_ref->{filter}->{group}:"all");
-#             %field_value_hash = ( "package_id"=>"$package_id",
-#                                     "group_name"=>$group,
-#                                     "service"=>$value);
-#             insert_into_table ($options,
-#                                 "Packages_servicelists",
-#                                 \%field_value_hash,
-#                                 $error_strings);
-#         }
-#     }
-# 
-#     # Insert into "Packages_switcher" table
-#     if ($xml_ref->{"package-specific-attributes"}->{switcher}){
-#         my $switcher_name =
-#             $xml_ref->{"package-specific-attributes"}->{switcher}->{name};
-#         my $switcher_tag =
-#             $xml_ref->{"package-specific-attributes"}->{switcher}->{tag};
-#         %field_value_hash = ( "package_id"=>"$package_id",
-#                                 "switcher_name"=>$switcher_name,
-#                                 "switcher_tag"=>$switcher_tag );
-#         insert_into_table ($options,
-#                             "Packages_switcher",
-#                             \%field_value_hash,
-#                             $error_strings);
-#     }
-# }
-# 
-# ################################################################################
-# # Check in the database if a given version of a given OPKG is installed.       #
-# #                                                                              #
-# # Input: package, OPKG we are looking for.                                     #
-# #        version, OPKG version we are looking for.                             #
-# # Return: 1 if success, 0 else.                                                #
-# ################################################################################
-# sub is_installed ($$) {
-#     my ($package,
-#         $version) = @_;
-#     oscar_log_subsection (">$0:\n".
-#         "====> in is_installed Checking to see if Packages table has been ".
-#         "already populated\n")
-#         if $options{debug} || $options{verbose};
-#     my $result_ref = get_package_info_with_name($package,
-#                         \%options,\@error_strings,$version);
-#     return ($result_ref?1:0);
-# }
-# 
-# # Return: a debug message string used later on by other functions; or undef if
-# #         error.
-# #
-# # TODO: we have way to many parameters in that function, that must be improved.
-# sub insert_opkg_into_db ($$$$$$$$$$) {
-#     my ($package,
-#         $package_version,
-#         $directory,
-#         $xml_file_name,
-#         $xml_ref,
-#         $table_fields_hash,
-#         $packages_table_name,
-#         $options,
-#         $oda_options,
-#         $error_strings) = @_;
-# 
-#     my $msg;
-# 
-#     if ( OSCAR::Database::is_installed($package,$package_version) ){
-#         my $package_id = delete_packages_related_table($package,
-#                                                        $options,
-#                                                        $error_strings,
-#                                                        $package_version);
-#         if (! defined ($package_id) ) {
-#             carp "ERROR: impossible to delete database tables\n";
-#             return undef;
-#         }
-#         if (!update_packages($xml_ref,
-#                         "Packages",
-#                         $package_id,
-#                         $package,
-#                         $directory,
-#                         $table_fields_hash,
-#                         $options,
-#                         $error_strings)) {
-#             carp "ERROR: failed updated packages data ($package)\n";
-#             return undef;
-#         }
-#         $msg = "Modifying existing $packages_table_name record for package";
-#     } else {
-#         $msg = "Writing a new $packages_table_name record for package";
-# 
-#         print Dumper($table_fields_hash) if $oda_options->{debug};
-#         OSCAR::Utils::print_hash("",
-#                 "Print the package $package/$xml_file_name",
-#                 $xml_ref) if $oda_options->{debug};
-# 
-#         # Insert into "Packages" table
-#         if (!insert_packages($xml_ref, "Packages", $package, $directory,
-#                             $table_fields_hash, $options,
-#                             $error_strings)) {
-#             print "ERROR: Impossible to insert package $package\n";
-#             return undef;
-#         }
-#     }
-# 
-#     return $msg;
-# }
 
 1;
 
