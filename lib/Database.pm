@@ -3075,6 +3075,40 @@ where:
 - sel is a hash describing the package, a typical example is %sel = (package => 
       $pkg, distro => $distro_string, version => $version ),
 
+=head3 Get data about OPKGs
+
+get_packages (\@res, \%opts, $error_ref, %sel)
+
+where:
+
+- res is an array of pointers to hashes, each hash being similar to:
+
+$VAR1 = {
+          'distro' => 'fc-9-x86_64',
+          'version' => '1.1.1-1',
+          'packager' => 'Geoffroy Vallee',
+          'description' => 'Description of package1',
+          'package' => 'package1',
+          'group' => 'System Environment/Base',
+          'summary' => 'Summary of the package',
+          'class' => 'core'
+        };
+
+- options_ref is a reference to a hash specifying the action options (may be
+              undef),
+
+- $errors_ref is a reference to an array giving extra debugging information that
+              needs to be displayed when errors occur,
+
+- sel is a hash describing the package, a typical example is %sel = (package => 
+      $pkg, distro => $distro_string, version => $version ),
+
+Example:
+
+To get the list of OPKGs available for Debian-4-i386:
+
+get_packages (\@opkgs_data, \%options, undef, distro => 'debian-4-i386');
+
 =head2 OPKG Selection - Selector API
 
 Data from Selector is saved in the Group_Packages table: the OPKGs can actually

@@ -767,7 +767,7 @@ sub do_query {
     print "DB_DEBUG>$0:\n====> in oda\:\:do_query: executing on database <$$options_ref{database}> command <$sql_command>\n"
         if $$options_ref{verbose};
     my $statement_handle = $database_handle->prepare($sql_command);
-    if (!$statement_handle) {    
+    if (!$statement_handle) {
 	push @$error_strings_ref,
 	"error preparing sql statement <$sql_command> on database <$$options_ref{database}>:\n$DBI::errstr";
 	oda_disconnect($options_ref, $error_strings_ref)
