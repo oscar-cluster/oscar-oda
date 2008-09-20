@@ -516,9 +516,9 @@ sub get_cluster_info_with_name {
 # replace all of them and make the calls more readable.                        #
 #                                                                              #
 # Usage:                                                                       #
-#   get_packages(\@res,\%opts, $err, class => "core", distro => $distro);       #
-#   get_packages(\@res,\%opts, $err, version => $ver, distro => $distro);       #
-#   get_packages(\@res,\%opts, $err, package => $name, version => $ver,         #
+#   get_packages(\@res,\%opts, $err, class => "core", distro => $distro);      #
+#   get_packages(\@res,\%opts, $err, version => $ver, distro => $distro);      #
+#   get_packages(\@res,\%opts, $err, package => $name, version => $ver,        #
 #                distro => $distro);                                           #
 # etc...                                                                       #
 # The selectors all add up and invoked with AND between them.                  #
