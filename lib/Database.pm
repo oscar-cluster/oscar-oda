@@ -2940,7 +2940,8 @@ sub set_opkgs_selection_data (%) {
     my (@res, %opts);
     for my $opkg ( keys %selection_data ) {
         my %opts = (debug => 0);
-        if (get_packages(\@res, \%opts, undef, package => $opkg) == 0) {
+        @res = ();
+        if (get_packages(\@res, \%opts, undef, package => "$opkg") == 0) {
             carp "ERROR: Impossible to query database";
             return -1;
         }
