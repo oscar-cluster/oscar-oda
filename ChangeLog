@@ -9,6 +9,7 @@ scripts.
 Database.pm.
 - Add a basic directory structure for unit tests and add a first set of tests
 related to the management of OPKGs and Selector.
+- Improve the data stored for each OPKG, we get now much more information.
 
 1.2:
 - Fix different bugs in SQL syntax (introduced during the merge of the OSCAR

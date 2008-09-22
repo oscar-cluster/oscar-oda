@@ -1247,11 +1247,11 @@ sub translate_fields ($) {
 # TODO: do we want to have a "options" parameter?                              #
 ################################################################################
 sub insert_opkgs ($) {
-    my $opkgs = shift;
+    my $opkgs_hash_ref = shift;
     my $table = "Packages";
 
     my %table_fields_hash = OSCAR::Database::translate_fields ($table);
-    if (insert_packages ($opkgs,
+    if (insert_packages ($opkgs_hash_ref,
                          $table,
                          \%table_fields_hash,
                          undef,
@@ -2940,13 +2940,13 @@ sub set_opkgs_selection_data (%) {
     my (@res, %opts);
     for my $opkg ( keys %selection_data ) {
         my %opts = (debug => 0);
-        if (get_packages(\@res, \%opts, undef, package => '$opkg') == 0) {
+        if (get_packages(\@res, \%opts, undef, package => $opkg) == 0) {
             carp "ERROR: Impossible to query database";
             return -1;
         }
         if (scalar (@res) == 0) {
             # TODO: we should save real OPKG data and not only the name
-            my %opkg_data = (package => "$opkg");
+            my %opkg_data = (package => $opkg);
             my (%table_fields_hash, @error_strings);
             if (insert_opkgs (\%opkg_data)) {
                 carp "ERROR: Impossible to insert the new OPKGs";

@@ -132,8 +132,37 @@ foreach my $opkg_ref (@opkgs){
 #
 print "Getting info on all opkgs available in the passed OS repositories...\n";
 
-my %hash = ('os', $os);
-my %o = OSCAR::OpkgDB::opkg_hash_available(%hash);
+my %o;
+require OSCAR::RepositoryManager;
+my $orm = OSCAR::RepositoryManager->new(distro => $distro_string);
+if (!defined $orm) {
+    die "ERROR: Impossible to create a RepositoryManager object";
+}
+
+print "\n[INFO] Querying for available OSCAR packages. That may take a while, ".
+      "please be patient...\n\n";
+my $search = "^opkg-.*-server";
+my ($rc, @list_opkgs) = $orm->search_opkgs ($search);
+# We get the list of binary package for the server side, we change the name of
+# the OPKGs we found to fall back on the API side. This is needed in order to
+# get the good description associated with the OPKG
+for (my $i=0; $i < scalar (@list_opkgs); $i++) {
+    $list_opkgs[$i] =~ s/-server//;
+}
+OSCAR::Utils::print_array (@list_opkgs);
+
+print "\n[INFO] Querying details for all OPKGs we found...\n\n";
+# TODO: the code to find available OPKGs should be in OpkgDB
+foreach my $opkg (@list_opkgs) {
+    my ($rc, %output) = $orm->show_opkg ($opkg);
+    # Now that we have the details, we clean up the name of the OPKG, we go from
+    # something like "opkg-oda-server" to oda
+    my $opkg_data = $output{$opkg};
+    $opkg =~ s/opkg-//;
+    $$opkg_data{'package'} = $opkg;
+    $o{$opkg} = $opkg_data;
+}
+OSCAR::Utils::print_hash ("", "OPKGs data:", \%o);
 
 print "\n[$0]:\n<<<<<===========================".
     " Populating the Packages records starts\n"
@@ -158,14 +187,12 @@ foreach my $package (sort(keys(%o))) {
 
     my %opkg = %{$o{$package}};
 
-    my $package_id = &is_installed($package,$pkg_version);
+    my $package_id = &is_installed($package, $pkg_version);
     if ($package_id) {
         &delete_packages_related_table($package, \%options, \@error_strings);
         &update_packages(\%opkg, "Packages", $package_id, \%table_fields_hash,
                          \%options, \@error_strings);
     } else {
-        print Dumper(\%opkg) if $options{debug};
-
         # Insert into "Packages" table
         &insert_opkgs(\%opkg);
     }
