@@ -1,4 +1,4 @@
-1.3 (not yet released):
+1.3:
 - Remove useless error messages when OSCAR_HOME is not defined.
 - Print a success message at the end of the ODA initialization.
 - Add a files for the definition of all the ODA constants (ODA_Defs.pm)

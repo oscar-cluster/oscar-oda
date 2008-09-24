@@ -1,3 +1,9 @@
+oda (1.3-1) hardy; urgency=low
+
+  * New upstream version. 
+
+ -- Geoffroy Vallee <valleegr@ornl.gov>  Tue, 23 Sep 2008 20:04:22 -0400
+
 oda (1.2-1) gutsy; urgency=low
 
   * New upstream version.
