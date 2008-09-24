@@ -9,6 +9,7 @@ SCRIPTS := oda populate_oda_packages_table prepare_oda create_oscar_database \
 SUBDIRS :=
 
 doc:
+	install -d -m 0755 $(DESTDIR)/usr/local/man/man1/
 	for bin in ${SCRIPTS} ; do ( pod2man --section=1 $$bin $(DESTDIR)/usr/local/man/man1/$$bin.1 ) ; done
 
 all:
