@@ -33,6 +33,7 @@ dist: clean
 rpm: dist
 	sed -e "s/PERLLIBPATH/$(SEDLIBDIR)/" < oda.spec.in \
         > oda.spec
+	cp oda.tar.gz /usr/src/redhat/SOURCES
 	rpmbuild -bb ./oda.spec
 
 deb:
