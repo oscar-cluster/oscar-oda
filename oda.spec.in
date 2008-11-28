@@ -9,7 +9,7 @@
 Summary:        OSCAR DatabAse.
 Name:           oda
 Version:        1.3.1
-Release:        1
+Release:        2
 Vendor:         Open Cluster Group <http://OSCAR.OpenClusterGroup.org/>
 Distribution:   OSCAR
 Packager:       Geoffroy Vallee <valleegr@ornl.gov>
@@ -18,6 +18,7 @@ Group:          Development/Libraries
 Source:         %{name}.tar.gz
 BuildRoot:      %{_localstatedir}/tmp/%{name}-root
 BuildArch:      noarch
+AutoReqProv: 	no
 
 %description
 Set of scripts and Perl modules for the management of the OSCAR database.
@@ -38,6 +39,8 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %{manpref}/*
 
 %changelog
+* Fri Nov 28 2008 Geoffroy Vallee <valleegr@ornl.gov> 1.3.1-2
+- Disable automatic dependencies.
 * Wed Nov 26 2008 Geoffroy Vallee <valleegr@ornl.gov> 1.3.1-1
 - includes the man pages into the RPM.
 * Tue Sep 23 2008 Geoffroy Vallee <valleegr@ornl.gov> 1.3-1
