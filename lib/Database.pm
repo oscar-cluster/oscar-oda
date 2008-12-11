@@ -479,18 +479,22 @@ sub get_nics_with_name_node {
         $results = { 'ip' => $ip,
                      'broadcast' => $broadcast,
                      'net' => $net};
-        return 0;
     } elsif ($config->{db_type} eq "db") {
         my $sql ="SELECT Nics.* FROM Nics, Nodes ".
                 "WHERE Nodes.id=Nics.node_id AND Nodes.name='$node' " .
                 "AND Nics.name='$nic'";
         print "DB_DEBUG>$0:\n====> in Database::get_nics_with_name_node SQL :".
               " $sql\n" if $$options_ref{debug};
-        return do_select($sql,$results, $options_ref, $error_strings_ref);
+        my $rc = do_select($sql,$results, $options_ref, $error_strings_ref);
+        if ($rc == 0) {
+            carp "ERROR: Impossible to get the data about $node/$nic";
+            return -1;
+        }
     } else {
         carp "ERROR: Unknow ODA mode ($config->{db_type})";
+        return -1;
     }
-    return -1;
+    return 0;
 }
 
 sub get_cluster_info_with_name {
@@ -639,14 +643,18 @@ sub get_selected_group_packages ($$$$$) {
         $error_strings_ref,
         $group,
         $flag) = @_;
-    $group = get_selected_group($options_ref,$error_strings_ref) if(!$group);    
-    $flag = 1 if(! $flag);
-    my $sql = "SELECT Group_Packages.package " .
-              "From Group_Packages, Groups " .
-              "WHERE Group_Packages.group_name=Groups.name ".
-              "AND Groups.name='$group' ".
-              "AND Groups.selected=1 ".
-              "AND Group_Packages.selected=$flag";
+#     $group = get_selected_group($options_ref,$error_strings_ref) if(!$group);
+#     print STDERR $group;
+    $flag = OSCAR::ODA_Defs::SELECTED() if(! $flag);
+#     my $sql = "SELECT Group_Packages.package " .
+#               "From Group_Packages, Groups " .
+#               "WHERE Group_Packages.group_name=Groups.name ".
+#               "AND Groups.name='$group' ".
+#               "AND Groups.selected=1 ".
+#               "AND Group_Packages.selected=$flag";
+    my $sql = "SELECT Group_Packages.package ".
+              "FROM Group_Packages ".
+              "WHERE Group_Packages.selected=$flag";
     print "DB_DEBUG>$0:\n====> in Database::get_selected_group_packages SQL : $sql\n" if $$options_ref{debug};
     return do_select($sql,$results_ref,$options_ref,$error_strings_ref);
 }
@@ -2068,6 +2076,18 @@ sub set_image_packages ($$$$) {
     return 1;
 }
 
+# Insert or update image data.
+#
+# Input: image_ref,  a ref to a hash representing the image data. The hash has the following 
+#                    structure:
+#                       "name": image name,
+#                       "architecture": target architecture for the image (e.g., x86_64).
+#                       "path": where the image is saved on the system.
+#        options_ref, options used for the addition of a new image (reference to a hash). 
+#                     Optional - can be "undef".
+#        error_ref, reference to an array that gathers messages to display in case of errors
+#                   or debugging. Optional - can be "undef".
+# Return: 1 if success, 0 else.
 sub set_images ($$$) {
     my ($image_ref,
         $options_ref,
@@ -3126,5 +3146,23 @@ my $return_code = OSCAR::Database::set_opkgs_selection_data (%opkgs_data);
 
 To get selection information, the following function is available:
 my %results = OSCAR::Database::get_opkgs_selection_data ();
+
+=head2 Image Management API
+
+An API allows one to save image data in ODA:
+
+=over 8
+
+=item my $image_ref = ();
+
+=item my $options_ref = undef; # options
+
+=item my $error_ref = undef;   # error/debugging messages
+
+=item my $rc = set_images ($image_ref, $options_ref, $error_ref);
+
+=cut
+
+The function returns 1 if sucess, 0 else.
 
 =cut
