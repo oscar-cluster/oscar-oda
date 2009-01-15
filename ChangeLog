@@ -1,3 +1,8 @@
+1.3.3:
+- Fix two problems in the populate_oda_packages_table script: we were detecting
+the compatible distro instead of the real distro; the query to detect OPKGs was
+wrong on RPM based systems.
+
 1.3.2:
 - Fix a problem when querying data about a specific node/nic.
 - Improve the perldoc documentation of few Perl modules.

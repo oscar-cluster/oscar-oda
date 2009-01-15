@@ -91,7 +91,7 @@ if ($ARGV[0]) {
 print "Detecting local distro...\n";
 if (!$os) {
     $os = &distro_detect_or_die();
-    $distro_string = &os_cdistro_string($os);
+    $distro_string = &os_distro_string($os);
 }
 
 print "Connecting to ODA...\n";
@@ -141,7 +141,15 @@ if (!defined $orm) {
 
 print "\n[INFO] Querying for available OSCAR packages. That may take a while, ".
       "please be patient...\n\n";
-my $search = "^opkg-.*-server";
+my $search;
+# They query to get available OPKGs is different on RPM and Deb based systems
+# TODO: make an abstaction for that!
+my $search;
+if ($os->{pkg} eq "deb") {
+    $search = "^opkg-.*-server";
+} elsif ($os->{pkg} eq "rpm") {
+    $search = "opkg-*-server";
+}
 my ($rc, @list_opkgs) = $orm->search_opkgs ($search);
 # We get the list of binary package for the server side, we change the name of
 # the OPKGs we found to fall back on the API side. This is needed in order to
