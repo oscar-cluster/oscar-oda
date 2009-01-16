@@ -423,6 +423,7 @@ sub get_networks {
     return do_select($sql, $results, $options_ref, $error_strings_ref);
 }
 
+# Return: 1 if success, 0 else.
 sub get_nics_info_with_node {
     my ($node,
         $results,
@@ -1394,6 +1395,9 @@ sub update_node ($$$$) {
 
 # For normal oscar package installation, the possible values of  "requested"  #
 # are defined in ODA_Defs.
+#
+# Input: passed_pkg, array of OPKGs name.
+# Return: 1 is success, 0 else.
 sub update_node_package_status ($$$$$$) {
     my ($options_ref,
         $node,
@@ -1402,16 +1406,11 @@ sub update_node_package_status ($$$$$$) {
         $errors_ref,
         $selected) = @_;
 
+    # By default, we assume the package should not be installed.
     $requested = SHOULD_NOT_BE_INSTALLED() if ! $requested;
-    my $packages;
-    if (ref($passed_pkg) eq "ARRAY"){
-        $packages = $passed_pkg;
-    }else{
-        my %opkg = ();
-        my @temp_packages = ();
-        $opkg{package} = $passed_pkg;
-        push @temp_packages, \%opkg;
-        $packages = \@temp_packages;
+    if (ref($passed_pkg) ne "ARRAY") {
+        carp "ERROR: Invalid argument";
+        return 0;
     }
     # If requested is one of the names of the fields being passed in, convert it
     # to the enum version instead of the string
@@ -1420,9 +1419,7 @@ sub update_node_package_status ($$$$$$) {
 	}
     my $node_ref = get_node_info_with_name($node, $options_ref, $errors_ref);
     my $node_id = $$node_ref{id};
-    foreach my $pkg_ref (@$packages) {
-        my $opkg = $$pkg_ref{package};
-
+    foreach my $opkg (@$passed_pkg) {
         my %field_value_hash = ("requested" => $requested);
         if ($$options_ref{debug} || defined($ENV{DEBUG_OSCAR_WIZARD}) ) {
             print "DB_DEBUG>$0:\n====> in ".
@@ -1441,7 +1438,7 @@ sub update_node_package_status ($$$$$$) {
         }
         my @results = ();
         my $table = "Node_Package_Status";
-        &get_node_package_status_with_node_package($node,
+        get_node_package_status_with_node_package($node,
                            $opkg,
                            \@results,
                            $options_ref,
@@ -1476,12 +1473,12 @@ sub update_node_package_status ($$$$$$) {
             }
         } else {
             %field_value_hash = ("node_id" => $node_id,
-                                    "package" => $opkg,
-                                "requested" => $requested);
+                                 "package" => $opkg,
+                                 "requested" => $requested);
             if (!&insert_into_table ($options_ref,
-                                    $table,
-                                    \%field_value_hash,
-                                    $errors_ref)) {
+                                     $table,
+                                     \%field_value_hash,
+                                     $errors_ref)) {
                 die "DB_DEBUG>$0:\n".
                     "====>Failed to insert values into table $table";
             }

@@ -1,3 +1,8 @@
+1.3.4 (not yet released):
+- Update the populate_default_package_set script: there are now two options 
+"verbose" and "debug" to manage the level of verbosity while running.
+- Fix a bug in Database.pm (update_node_package_status).
+
 1.3.3:
 - Fix two problems in the populate_oda_packages_table script: we were detecting
 the compatible distro instead of the real distro; the query to detect OPKGs was

@@ -34,8 +34,26 @@
 use strict;
 use lib "$ENV{OSCAR_HOME}/lib";
 use OSCAR::Database;
-use OSCAR::Package;
+use OSCAR::Logger;
 use OSCAR::oda;
+use OSCAR::Package;
+use Getopt::Long;
+
+my ($verbose, $debug);
+GetOptions(
+            "debug"     => \$debug,
+            "verbose"   => \$verbose,
+          );
+
+# We set the verbose mode based on the different passed options.
+my $initial_verbose_value = 0;
+$initial_verbose_value = $ENV{OSCAR_VERBOSE} if (defined $ENV{OSCAR_VERBOSE});
+if ($debug) {
+    $ENV{OSCAR_VERBOSE} = 10;
+}
+if ($verbose) {
+    $ENV{OSCAR_VERBOSE} = 5;
+}
 
 my %options = ();
 my @errors = ();
@@ -43,10 +61,16 @@ my @errors = ();
 my @nics_results = ();
 my $OSCAR_SERVER_NODE = "oscar_server";
 
+OSCAR::Logger::oscar_log_subsection "Populating default package set";
+
 # Determine if it is the first time installation or not.
 # If nics table is already filled in, this is not first time installation.
 # and skip the whole process of this script (populate_default_package_set).
-get_nics_info_with_node($OSCAR_SERVER_NODE,\@nics_results,\%options,\@errors);
+OSCAR::Database::get_nics_info_with_node($OSCAR_SERVER_NODE,
+                                         \@nics_results,
+                                         \%options,
+                                         \@errors);
+
 exit 0 if(@nics_results);
 
 
@@ -61,18 +85,21 @@ my $DEFAULT = "Default";
 
 # START LOCKING FOR NEST && open the database
 
-my @tables =("Cluster","Nodes", "Packages", "Node_Package_Status", "Image_Package_Status", "Group_Packages", "Groups");
+my @tables = ("Cluster","Nodes", "Packages", "Node_Package_Status",
+              "Image_Package_Status", "Group_Packages", "Groups");
 
 #if(! locking("write", \%options, \@tables, \@errors)){
 #    die "DB_DEBUG>$0:\n====> cannot connect to oda database";
 #}
 
 # Make a 'Default' group selected
+OSCAR::Logger::oscar_log_subsection "Make a 'Default' group selected";
 if (set_groups_selected($DEFAULT, \%options, \@errors) != 1) {
     die "ERROR: Impossible to set the Default group in ODA";
 }
 
 # get a list of all installable packages
+OSCAR::Logger::oscar_log_subsection "Get a list of all installable packages";
 my @installable_packages = ();
 if (get_selected_group_packages(\@installable_packages,
                                 \%options,
@@ -85,10 +112,13 @@ if (get_selected_group_packages(\@installable_packages,
 
 
 # get the list of package_sets
-print "Checking for existence of package set <$DEFAULT>\n";
+oscar_log_subsection "Checking for existence of package set <$DEFAULT>";
 my @package_set_names = ();
 @errors = ("cannot read the list of package_sets from the oda database");
-get_group_packages_with_groupname($DEFAULT,\@package_set_names,\%options,\@errors);
+OSCAR::Database::get_group_packages_with_groupname ($DEFAULT,
+                                                    \@package_set_names,
+                                                    \%options,
+                                                    \@errors);
 
 # if we already have a package set named "Default", ...
 my $success = 1;
@@ -97,12 +127,17 @@ if ( @package_set_names )  {
     # If the default package set is already setup, do nothing.
 } else {
     # create an empty default package set
-    print "Initializing package set <$DEFAULT>\n";
+    oscar_log_subsection "Initializing package set <$DEFAULT>";
     @errors = ("error creating package set <$DEFAULT>");
-    if (set_groups($DEFAULT, \%options, \@errors, undef) != 1) {
+    if (OSCAR::Database::set_groups($DEFAULT,
+                                    \%options,
+                                    \@errors,
+                                    undef) != 1) {
         die "ERROR: Impossible to create the default package set";
     }
-    if (set_groups_selected($DEFAULT,\%options,\@errors) != 1) {
+    if (OSCAR::Database::set_groups_selected($DEFAULT,
+                                             \%options,
+                                             \@errors) != 1) {
         die "ERROR: Impossible to select the default package set";
     }
 
@@ -111,7 +146,8 @@ if ( @package_set_names )  {
         my $package_id = $$package_ref{id};
         my $package_name = $$package_ref{package};
 
-        print "Adding package <$package_name> to package set <$DEFAULT>\n";
+        OSCAR::Logger::oscar_log_subsection "Adding package <$package_name> ".
+            "to package set <$DEFAULT>";
         my %field_value_hash = ("package_id" => $package_id,
                                   "group_name" => $DEFAULT);
         my $error_msg="error adding package <$package_name> to package set ".
@@ -128,6 +164,7 @@ if ( @package_set_names )  {
 
 # Insert into "Node_Package_Status" table
 # If the data is already there, just update its status.
+OSCAR::Logger::oscar_log_subsection "Update the Node_Package_Status table";
 foreach my $package_ref (@installable_packages){
     my $package_id = $$package_ref{id};
     my $package_name = $$package_ref{package};
@@ -135,7 +172,7 @@ foreach my $package_ref (@installable_packages){
     # installable tag is kept on config.xml and this is an easier way
     # to avoid tracing not-installable packages (e.g., networking).
     my $requested = 2;
-    $success = update_node_package_status(
+    $success = OSCAR::Database::update_node_package_status(
                     \%options,
                     $OSCAR_SERVER_NODE,
                     $package_name,
@@ -156,6 +193,8 @@ if ( $success ) {
     die "DB_DEBUG>$0:\n====> error setting up default values for package set <$DEFAULT>";
 }
 
+$ENV{OSCAR_VERBOSE} = $initial_verbose_value;
+
 __END__
 
 =head1 NAME
@@ -168,7 +207,17 @@ populate_default_package_set
 
 =head1 OPTIONS
 
-None.
+=over 8
+
+=item --verbose
+
+Display information during execution (set OSCAR_VERBOSE to 5).
+
+=item --debug
+
+Display even more information (set OSCAR_VERBOSE to 10).
+
+=back
 
 =head1 AUTHORS
 
@@ -177,6 +226,8 @@ None.
 =item Bernard Li <bli@bcgsc.ca>
 
 =item Indiana University
+
+=item Geoffroy Vallee <valleegr at ornl dot gov>
 
 =head1 SEE ALSO
 
