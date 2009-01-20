@@ -1,4 +1,4 @@
-1.3.4 (not yet released):
+1.3.4:
 - Update the populate_default_package_set script: there are now two options 
 "verbose" and "debug" to manage the level of verbosity while running.
 - Fix a bug in Database.pm (update_node_package_status).
