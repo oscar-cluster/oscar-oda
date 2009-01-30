@@ -1,3 +1,8 @@
+1.3.5 (not yet released):
+- Modify the Makefile so we can choose the directory to save sources when
+creating RPMs.
+- Make the Makefile more generic.
+
 1.3.4:
 - Update the populate_default_package_set script: there are now two options 
 "verbose" and "debug" to manage the level of verbosity while running.

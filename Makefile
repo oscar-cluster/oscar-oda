@@ -1,4 +1,6 @@
 DESTDIR=
+SOURCEDIR=/usr/src/redhat/SOURCES
+PKG=oda
 
 include ./Config.mk
 
@@ -15,26 +17,26 @@ uninstall:
 
 clean:
 	@rm -f build-stamp configure-stamp
-	@rm -rf debian/oda
-	@rm -f oda.tar.gz
-	@rm -f oda.spec
+	@rm -rf debian/$(PKG)
+	@rm -f $(PKG).tar.gz
+	@rm -f $(PKG).spec
 	for dir in ${SUBDIRS} ; do ( cd $$dir ; ${MAKE} clean ) ; done
 
 dist: clean
-	@rm -rf /tmp/oda
-	@mkdir -p /tmp/oda
-	@cp -rf * /tmp/oda
-	@cd /tmp/oda; rm -rf `find . -name ".svn"`
-	@cd /tmp; tar czf oda.tar.gz oda
-	@cp -f /tmp/oda.tar.gz .
-	@rm -rf /tmp/oda/
-	@rm -f /tmp/oda.tar.gz
+	@rm -rf /tmp/$(PKG)
+	@mkdir -p /tmp/$(PKG)
+	@cp -rf * /tmp/$(PKG)
+	@cd /tmp/$(PKG); rm -rf `find . -name ".svn"`
+	@cd /tmp; tar czf $(PKG).tar.gz $(PKG)
+	@cp -f /tmp/$(PKG).tar.gz .
+	@rm -rf /tmp/$(PKG)/
+	@rm -f /tmp/$(PKG).tar.gz
 
 rpm: dist
-	sed -e "s/PERLLIBPATH/$(SEDLIBDIR)/" < oda.spec.in \
-        > oda.spec
-	cp oda.tar.gz /usr/src/redhat/SOURCES
-	rpmbuild -bb ./oda.spec
+	sed -e "s/PERLLIBPATH/$(SEDLIBDIR)/" < $(PKG).spec.in \
+        > $(PKG).spec
+	cp $(PKG).tar.gz $(SOURCEDIR)
+	rpmbuild -bb ./$(PKG).spec
 
 deb:
 	dpkg-buildpackage -rfakeroot
