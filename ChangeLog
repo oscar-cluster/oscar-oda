@@ -1,4 +1,6 @@
 1.3.5 (not yet released):
+- Slightly improve debugging messages.
+- Fix a problem of database disconnection when executing an SQL command.
 - Modify the Makefile so we can choose the directory to save sources when
 creating RPMs.
 - Make the Makefile more generic.

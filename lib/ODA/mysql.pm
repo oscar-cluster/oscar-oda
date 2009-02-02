@@ -43,7 +43,7 @@ my $temp_cached_all_tables_fields = undef;
 
 my %locked_tables = ();
 my $database_connected_flag = 0;
-my $database_handle;
+use vars qw ($database_handle);
 my $database_name;
 my $database_server_version = undef;
 
@@ -137,6 +137,8 @@ sub oda_connect ($$) {
             push @$error_strings_ref,
             "Cannot connect to database <$$options_ref{database}> as user <$$options_ref{user}>";
         }
+    } else {
+        print STDERR "WARNING: already connected to the database\n";
     }
 
     return $database_connected_flag;
@@ -691,10 +693,13 @@ sub do_sql_command {
         }
     }
     # connect to the database if not already connected
-    ( my $was_connected_flag = $database_connected_flag ) ||
-	oda_connect( $options_ref,
-		     $error_strings_ref ) ||
-		     return 0;
+    my $was_connected_flag = $database_connected_flag;
+    if ($database_connected_flag == 0) {
+        if (oda_connect( $options_ref, $error_strings_ref ) == 0) {
+            carp "ERROR: Impossible to connect to the database";
+            return 0;
+        }
+    }
     print "DB_DEBUG>$0:\n====> in oda\:\:do_sql_command" .
 	" sql_command=<$sql_command>" .
 	" caller=<$caller_string>" .
@@ -711,15 +716,21 @@ sub do_sql_command {
         "$0: SQL command that failed was: <$sql_command>";
         warn shift @$error_strings_ref while @$error_strings_ref;
 
-        oda_disconnect( $options_ref,
-                 $error_strings_ref )
-        if ! $was_connected_flag;
+        if ($was_connected_flag == 0) {
+            oda_disconnect( $options_ref, $error_strings_ref );
+        }
+        
         return 0;
     } else {
         # Clear off the error strings in the error array.
         if (ref($error_strings_ref) eq "ARRAY") {
             shift @$error_strings_ref while @$error_strings_ref;
         }
+        # We disconnect if we were not previously connected.
+        if ($was_connected_flag == 0) {
+            oda_disconnect( $options_ref, $error_strings_ref );
+        }
+
         return 1;
     }
 }
