@@ -1,4 +1,5 @@
 DESTDIR=
+PKGDEST=
 SOURCEDIR=/usr/src/redhat/SOURCES
 PKG=oda
 
@@ -37,6 +38,18 @@ rpm: dist
         > $(PKG).spec
 	cp $(PKG).tar.gz $(SOURCEDIR)
 	rpmbuild -bb ./$(PKG).spec
+	@if [ -n "$(PKGDEST)" ]; then \
+        mv `rpm --eval '%{_topdir}'`/RPMS/noarch/$(PKG)-*.noarch.rpm $(PKGDEST); \
+    fi
 
 deb:
-	dpkg-buildpackage -rfakeroot
+	@if [ -n "$$UNSIGNED_OSCAR_PKG" ]; then \
+        echo "dpkg-buildpackage -rfakeroot -us -uc"; \
+        dpkg-buildpackage -rfakeroot -us -uc; \
+    else \
+        echo "dpkg-buildpackage -rfakeroot"; \
+        dpkg-buildpackage -rfakeroot; \
+    fi
+	@if [ -n "$(PKGDEST)" ]; then \
+        mv ../$(PKG)*.deb $(PKGDEST); \
+    fi
