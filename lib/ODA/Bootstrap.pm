@@ -54,7 +54,7 @@ sub init_db ($) {
         return -1;
     }
     my $config = $configurator->get_config();
-
+    
     require OSCAR::oda;
     print "Database Initialization\n";
     my (%options, %errors);
@@ -254,6 +254,17 @@ sub bootstrap_oda ($) {
         carp "ERROR: Unknow ODA type ($config->{db_type})\n";
         return -1;
     }
+    
+    # We start the database daemon
+    require OSCAR::SystemServices;
+    require OSCAR::SystemServicesDefs;
+    if ($option eq "mysql") {
+        OSCAR::SystemServices::system_service (OSCAR::SystemServicesDefs::MYSQL(),
+            OSCAR::SystemServicesDefs::RESTART());
+    } else {
+        carp "Restart of postgres not yet supported";
+    }
+    
     return 0;
 }
 
