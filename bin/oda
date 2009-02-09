@@ -666,6 +666,7 @@ Options:
   --verbose             turns on verbose output
   --version             prints version number and exits program
   --init=DATABASE_TYPE  initialize ODA.
+  --reset               re-initialize ODA to zero.
 USAGE2
     print STDERR <<USAGE5;
 
@@ -718,7 +719,8 @@ GetOptions( \%options,
         'user|u=s',
         'verbose!',
         'version',
-        'init|bootstrap=s' )
+        'init|bootstrap=s',
+        'reset')
     || usage(0, 1);
 print "$0: after GetOptions ARGV=<@ARGV>\n" if $options{debug};
 OSCAR::Utils::print_hash( "", "$0: options after GetOptions", \%options) if $options{debug};
@@ -747,6 +749,57 @@ if ( exists $options{init} ) {
         die "ERROR: Impossible to bootstrap the database";
     }
     print "\nSuccessfully initialized ODA\n\n";
+    exit 0;
+}
+
+if ( exists $options{reset} ) {
+    print "Reseting ODA\n";
+    $ENV{OSCAR_VERBOSE}=5;
+    
+    #
+    # We drop the database
+    #
+    print "Dropping the OSCAR database";
+    my $cmd = "/usr/bin/mysqladmin drop oscar --force";
+    system $cmd;
+        
+    #
+    # We remove the oda prereq
+    #
+    print "Removing ODA prereqs\n";
+    # We get the configuration from the OSCAR configuration file.
+    require OSCAR::ConfigManager;
+    require OSCAR::Startover;
+    my $oscar_configurator = OSCAR::ConfigManager->new();
+    if ( ! defined ($oscar_configurator) ) {
+        die "ERROR: Impossible to get the OSCAR configuration\n";
+    }
+    my $config = $oscar_configurator->get_config();
+
+    # Then we deal with prereq.cfg
+    my $dir;
+    if (defined $ENV{OSCAR_HOME}) {
+        $dir = "$ENV{OSCAR_HOME}/packages/oda/";
+    } else {
+        $dir = "/usr/share/oscar/prereqs/oda/";
+    }
+    my $prereq_cmd = $config->{'binaries_path'} . "/install_prereq";
+    OSCAR::Startover::remove_prereq ($prereq_cmd, $dir);
+    
+    #
+    # We remove the oda symlink
+    #
+    my @data = Config::config_re("vendorlib");
+    if (scalar (@data) > 1 || scalar (@data) == 0) {
+        die "ERROR: Impossible to know where are the Perl modules";
+    }
+    my ($key, $path) = split ("=", $data[0]);
+    $path =~ m/\'(.*)\'/;
+    $path = $1;
+    my $dest = "$path/OSCAR/oda.pm";
+    print "Removing $dest\n";
+    unlink ($dest);
+    
     exit 0;
 }
 
