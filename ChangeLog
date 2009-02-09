@@ -1,4 +1,6 @@
 1.3.6 (not yet released):
+- Fix a problem with the mysql prereq on Debian based system (actually install
+mysql and not only the libraries).
 - Modify the Makefile so we can choose the directory where the binary packages
 are stored.
 - Enable the creation of unsigned Debian packages by setting the
