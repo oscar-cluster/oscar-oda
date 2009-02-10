@@ -1,4 +1,4 @@
-1.4 (not yet released):
+1.4:
 - Add the capability of reseting ODA.
 - Force the start of the database daemon during ODA initialization.
 - Fix a problem with the mysql prereq on Debian based system (actually install

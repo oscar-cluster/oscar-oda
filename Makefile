@@ -19,6 +19,7 @@ uninstall:
 clean:
 	@rm -f build-stamp configure-stamp
 	@rm -rf debian/$(PKG)
+	@rm -f debian/files
 	@rm -f $(PKG).tar.gz
 	@rm -f $(PKG).spec
 	for dir in ${SUBDIRS} ; do ( cd $$dir ; ${MAKE} clean ) ; done
