@@ -757,6 +757,18 @@ if ( exists $options{reset} ) {
     $ENV{OSCAR_VERBOSE}=5;
     
     #
+    # Make sure the database server is actually running
+    #
+    require OSCAR::SystemServices;
+    require OSCAR::SystemServicesDefs;
+    if ($option eq "mysql") {
+        OSCAR::SystemServices::system_service (OSCAR::SystemServicesDefs::MYSQL(),
+            OSCAR::SystemServicesDefs::RESTART());
+    } else {
+        carp "Restart of postgres not yet supported";
+    }
+    
+    #
     # We drop the database
     #
     print "Dropping the OSCAR database";

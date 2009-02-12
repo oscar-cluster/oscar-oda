@@ -1,3 +1,7 @@
+1.4.1 (not yet released):
+- Before to reset ODA, we try to start the database daemon so we are sure we
+can actually try to delete the OSCAR database.
+
 1.4:
 - Add the capability of reseting ODA.
 - Force the start of the database daemon during ODA initialization.
