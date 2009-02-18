@@ -761,7 +761,9 @@ if ( exists $options{reset} ) {
     #
     require OSCAR::SystemServices;
     require OSCAR::SystemServicesDefs;
-    if ($option eq "mysql") {
+    my $db_type = "mysql"; # TOOD: We currently support only mysql, we need to
+                           # be able to detect that automatically.
+    if ($db_type eq "mysql") {
         OSCAR::SystemServices::system_service (OSCAR::SystemServicesDefs::MYSQL(),
             OSCAR::SystemServicesDefs::RESTART());
     } else {
