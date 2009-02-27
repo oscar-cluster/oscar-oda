@@ -2073,18 +2073,20 @@ sub set_image_packages ($$$$) {
     return 1;
 }
 
-# Insert or update image data.
-#
-# Input: image_ref,  a ref to a hash representing the image data. The hash has the following 
-#                    structure:
-#                       "name": image name,
-#                       "architecture": target architecture for the image (e.g., x86_64).
-#                       "path": where the image is saved on the system.
-#        options_ref, options used for the addition of a new image (reference to a hash). 
-#                     Optional - can be "undef".
-#        error_ref, reference to an array that gathers messages to display in case of errors
-#                   or debugging. Optional - can be "undef".
-# Return: 1 if success, 0 else.
+################################################################################
+# Insert or update image data.                                                 #
+#                                                                              #
+# Input: image_ref,  a ref to a hash representing the image data. The hash has #
+# the following structure:                                                     #
+#   name: image name,                                                          #
+#   architecture: target architecture for the image (e.g., x86_64).            #
+#   path: where the image is saved on the system.                              #
+#   options_ref, options used for the addition of a new image (reference to a  #
+#                hash). Optional - can be "undef".                             #
+#   error_ref, reference to an array that gathers messages to display in case  #
+#              of errors or debugging. Optional - can be "undef".              #
+# Return: 1 if success, 0 else.                                                #
+################################################################################
 sub set_images ($$$) {
     my ($image_ref,
         $options_ref,
@@ -2097,7 +2099,7 @@ sub set_images ($$$) {
     my $sql = "";
     if(!$images){ 
         $sql = "INSERT INTO Images (name,architecture,path) VALUES ".
-            "('$imgname','$architecture','$imagepath')";
+            "(\'$imgname\',\'$architecture\',\'$imagepath\')";
         print "DB_DEBUG>$0:\n====> in Database::set_images SQL : $sql\n"
             if $$options_ref{debug};
         die "DB_DEBUG>$0:\n====>Failed to insert values via << $sql >>"
