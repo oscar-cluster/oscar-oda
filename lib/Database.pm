@@ -311,55 +311,28 @@ sub database_disconnect ($$) {
 
 #########################################################################
 #  Subroutine: list_selected_packages                                   #
-#  Parameters: The "type" of packages - "core", "noncore", or "all"     #
 #  Returns   : A list of packages selected for installation.            #
-#  If you do not specify the "type" of packages, "all" is assumed.      #
 #                                                                       #
 #  Usage: @packages_that_are_selected = list_selected_packages();       #
-#                                                                       #
-# EF: moved here from Package.pm                                        #
-# DEPRECATED???                                                         #
+#  Return: an array of OPKGs' names, undef else.
 #########################################################################
-sub list_selected_packages # ($type[,$sel_group]) -> @selectedlist
-{
-    my ($type,$sel_group) = @_; #shift;
-
-    # If no argument was specified, use "all"
-
-    $type = "all" if ((!(defined $type)) || (!$type));
-
-    # make the database command and do the database read
-
-    # get the selected group.
-    $sel_group = &get_selected_group() if ! $sel_group;
-
-    my $command_args = "SELECT Packages.package, Packages.version " .
-             "FROM Packages, Group_Packages " .
-             "WHERE Packages.package=Group_Packages.package ".
-             "AND Group_Packages.group_name='$sel_group' ".
-             "AND Group_Packages.selected=1";
-    if ($type eq "all"){
-        $command_args = $command_args;
-    }elsif ($type eq "core"){
-        $command_args .= " AND Packages.__class='core' ";
-    } else {
-        $command_args .= " AND Packages.__class!='core' ";
+sub list_selected_packages () {
+    my $sql = "SELECT * FROM Group_Packages WHERE group_name='oscar_server'";
+    my @res = ();
+    if (OSCAR::Database_generic::do_select ($sql, \@res, undef, undef) == 0) {
+        carp "ERROR: Impossible to query Group_Packages ($sql)\n";
+        return undef;
+    }
+    my @selected_opkgs;
+    foreach my $ref (@res){
+        my $opkg = $$ref{package};
+        my $cur_selection = $$ref{selected};
+        if ($cur_selection eq OSCAR::ODA_Defs::SELECTED()) {
+            push (@selected_opkgs, $opkg);
+        }
     }
 
-    my @packages = ();
-    my @tables = ("Packages", "Group_Packages", "Nodes", "Node_Package_Status");
-    print "DB_DEBUG>$0:\n====> in Database::list_selected_packages SQL: $command_args\n"
-        if $options{debug};
-    if ( OSCAR::Database::single_dec_locked( $command_args,
-                                                   "READ",
-                                                   \@tables,
-                                                   \@packages,
-                                                   undef) ) {
-        return @packages;
-    } else {
-    warn "Cannot read selected packages list from the ODA database.";
-    return undef;
-    }
+    return @selected_opkgs;
 }
 
 ######################################################################
