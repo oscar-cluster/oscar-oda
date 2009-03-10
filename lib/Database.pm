@@ -2017,13 +2017,17 @@ sub rename_group ($$$$) {
     return 1;
 }
 
+# Return: 0 if success, -1 else.
 sub set_image_packages ($$$$) {
     my ($image,
         $package,
         $options_ref,
         $errors_ref) = @_;
     my $image_ref = get_image_info_with_name($image, $options_ref, $errors_ref);
-    croak("Image $image not found in OSCAR Database") unless ($image_ref);
+    if (!defined ($image_ref)) {
+        carp ("ERROR: Image $image not found in OSCAR Database");
+        return -1;
+    }
     my $image_id = $$image_ref{id};
     my $sql = "SELECT * FROM Image_Package_Status WHERE image_id=$image_id".
         " AND package='$package'";

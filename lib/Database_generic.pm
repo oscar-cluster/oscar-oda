@@ -200,7 +200,7 @@ sub do_update ($$$$) {
 #
 ######################################################################
 
-
+# Return: 1 if success, 0 else.
 sub insert_into_table ($$$$) {
     my ($options_ref, $table, $field_value_ref, $error_strings_ref) = @_;
     my $sql = "INSERT INTO $table ( ";
@@ -209,10 +209,17 @@ sub insert_into_table ($$$$) {
     my $flag = 0;
     my $comma = "";
     while ( my($field, $value) = each %$field_value_ref ){
+        if (!defined $value) {
+            carp "ERROR: Undefined value for key $field";
+            return 0;
+        }
         $comma = ", " if $flag;
         $sql .= "$comma $field";
         $flag = 1;
-        $value = ($value eq "NOW()"?$value:"'$value'");
+        # Some formating tasks
+        if ($value ne "NOW()") {
+            $value = "'$value'";
+        }
         $sql_values .= "$comma $value";
     }
     $sql .= ") $sql_values )";
@@ -222,13 +229,13 @@ sub insert_into_table ($$$$) {
     push @$error_strings_ref, $debug_msg;
 
     my $error_msg = "Failed to insert values to $table table";
-    my $success = OSCAR::oda::do_sql_command($options_ref,
+    my $rc = OSCAR::oda::do_sql_command($options_ref,
             $sql,
             "Insert Table $table",
             $error_msg,
             $error_strings_ref);
     $error_strings_ref = \@error_strings;
-    return  $success;
+    return  $rc;
 }
 
 ################################################################################

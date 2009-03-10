@@ -1,5 +1,6 @@
 1.4.2 (not yet released):
 - Fix the query to get the list of selected OPKGs.
+- Improved error handling.
 
 1.4.1:
 - Before to reset ODA, we try to start the database daemon so we are sure we
