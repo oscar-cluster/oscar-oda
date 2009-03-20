@@ -56,7 +56,12 @@ sub init_db ($) {
     my $config = $configurator->get_config();
     
     require OSCAR::oda;
-    print "Database Initialization\n";
+    print "Database Initialization...\n";
+    print "Restarting the database service...\n";
+    require OSCAR::SystemServices;
+    require OSCAR::SystemServicesDefs;
+    OSCAR::SystemServices::system_service (OSCAR::SystemServicesDefs::MYSQL(),
+        OSCAR::SystemServicesDefs::START());
     my (%options, %errors);
     my $database_status = OSCAR::oda::check_oscar_database(
         \%options,

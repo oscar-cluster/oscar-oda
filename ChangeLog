@@ -1,3 +1,7 @@
+1.4.3 (not yet released):
+- Explicitely restart the MYSQL service before to actually initialize the 
+database.
+
 1.4.2:
 - Fix the query to get the list of selected OPKGs.
 - Improved error handling.
