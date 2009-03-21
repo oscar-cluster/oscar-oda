@@ -873,7 +873,7 @@ sub get_groups_for_packages ($$$$) {
 #        - error_string_ref, reference to the string to personnalize debugging #
 #                            output.                                           #
 #        - group, group name.                                                  #
-# Return: reference to the result hash if success, 0 else.                     #
+# Return: reference to the result hash if success, undef else.                 #
 ################################################################################
 sub get_groups ($$$$) {
     my ($results,
@@ -889,7 +889,7 @@ sub get_groups ($$$$) {
     die "DB_DEBUG>$0:\n====>Failed to query values via << $sql >>"
         if! do_select($sql,$results, $options_ref, $error_strings_ref);
     return $$results[0] if $group;
-    return 0;
+    return undef;
 }
 
 ###############################################################################
