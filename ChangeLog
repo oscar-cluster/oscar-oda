@@ -1,4 +1,5 @@
 1.4.3 (not yet released):
+- Update the list of prereqs for ubuntu.
 - Explicitely restart the MYSQL service before to actually initialize the 
 database.
 - Make some return codes more coherent.
