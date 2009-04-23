@@ -1,3 +1,7 @@
+1.4.4 (not yet released):
+- Make sure the make_database_password script will not fail without perl-Tk
+(which happens if users only want to use the CLI).
+
 1.4.3:
 - Update the list of prereqs for ubuntu.
 - Explicitely restart the MYSQL service before to actually initialize the 
