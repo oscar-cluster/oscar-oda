@@ -19,6 +19,7 @@ Source:         %{name}.tar.gz
 BuildRoot:      %{_localstatedir}/tmp/%{name}-root
 BuildArch:      noarch
 AutoReqProv: 	no
+Requires:	oscar-base-lib
 
 %description
 Set of scripts and Perl modules for the management of the OSCAR database.
