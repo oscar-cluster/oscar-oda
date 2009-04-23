@@ -4,6 +4,7 @@
 - Continue to improve error handling.
 - During initialization, make sure we execute the set_global_oscar_values
 script.
+- get_opkg_selection_data can now return the data for all selected OPKGs.
 
 1.4.3:
 - Update the list of prereqs for ubuntu.

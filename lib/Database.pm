@@ -2967,10 +2967,11 @@ sub set_opkgs_selection_data (%) {
 ################################################################################
 # Return all selection data, i.e., the content of the Group_Packages table.    #
 #                                                                              #
+# Input: a list of package name, if undef, we assume we want all of them
 # Return: hash with OPKG selection data, undef if error.                       #
 #         Example: { 'lam' => SELECTED, 'openmpi' => UNSELECTED }              #
 ################################################################################
-sub get_opkgs_selection_data (@) {
+sub get_opkgs_selection_data {
     my @opkgs = @_;
     my %selection_data;
 
@@ -2983,7 +2984,8 @@ sub get_opkgs_selection_data (@) {
     foreach my $ref (@res){
         my $opkg = $$ref{package};
         my $cur_selection = $$ref{selected};
-        if (OSCAR::Utils::is_element_in_array ($opkg, @opkgs)) {
+        if (scalar (@opkgs) == 0
+            || OSCAR::Utils::is_element_in_array ($opkg, @opkgs)) {
             $selection_data{$opkg} = $cur_selection;
         }
     }
