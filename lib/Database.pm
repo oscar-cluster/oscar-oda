@@ -2975,6 +2975,11 @@ sub get_opkgs_selection_data {
     my @opkgs = @_;
     my %selection_data;
 
+    # Make sure we understand that we want to get data for all available OPKGs
+    if (scalar (@opkgs) == 1 && (!defined $opkgs[0] || $opkgs[0] eq "all")) {
+	delete ($opkgs[0]);
+    }
+
     my $sql = "SELECT * FROM Group_Packages WHERE group_name='oscar_server'";
     my @res = ();
     if (OSCAR::Database_generic::do_select ($sql, \@res, undef, undef) == 0) {
