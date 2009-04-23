@@ -2079,8 +2079,10 @@ sub set_images ($$$) {
             "(\'$imgname\',\'$architecture\',\'$imagepath\')";
         print "DB_DEBUG>$0:\n====> in Database::set_images SQL : $sql\n"
             if $$options_ref{debug};
-        die "DB_DEBUG>$0:\n====>Failed to insert values via << $sql >>"
-            if! do_insert($sql, "Images", $options_ref, $error_ref);
+        if (do_insert($sql, "Images", $options_ref, $error_ref) == 0) {
+            carp "DB_DEBUG>$0:\n====>Failed to insert values via << $sql >>"
+            return 0;
+        }
     } else {
         $sql = "UPDATE Images SET name='$imgname', ".
                "architecture='$architecture', path='$imagepath' ".
@@ -2162,6 +2164,7 @@ sub set_pkgconfig_var (%) {
 #                      name => "gmond_if");
 # The arguments "name" and "context" are optional.
 #
+# Returns an array of hashes with the data from ODA.
 sub get_pkgconfig_vars (%) {
     my (%sel) = @_;
     croak("opkg not specified!")	if (!exists($sel{opkg}));
