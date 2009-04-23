@@ -2,6 +2,8 @@
 - Make sure the make_database_password script will not fail without perl-Tk
 (which happens if users only want to use the CLI).
 - Continue to improve error handling.
+- During initialization, make sure we execute the set_global_oscar_values
+script.
 
 1.4.3:
 - Update the list of prereqs for ubuntu.

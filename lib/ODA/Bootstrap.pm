@@ -88,6 +88,10 @@ sub init_db ($) {
                  "($cmd, $ret)\n";
             return -1;
         }
+
+        # GV: TODO - Initialization of ODA is still messy. The initialization
+        # should be composed by two phases: the common initialization, and
+        # the db specific initialization. This will avoid code duplication.
         print "--> Password ok, now creating the database\n";
         $cmd = "$scripts_path/create_oscar_database";
         if (system ($cmd)) {
@@ -105,6 +109,17 @@ sub init_db ($) {
             carp ("Couldn't set up a default package set ($exit_status)");
             return -1;
         }
+        require OSCAR::ConfigFile;
+        my $iface = OSCAR::ConfigFile::get_value ("/etc/oscar/oscar.conf",
+            undef,
+            "OSCAR_NETWORK_INTERFACE");
+        $iface = "eth0" if (!defined ($iface));
+        $cmd = "$scripts_path/set_global_oscar_values --interface $iface";
+        if (system ($cmd)) {
+            carp "ERROR: Impossible to set global OSCAR values";
+            return -1;
+        }
+
         # We double-check if the database really exists
         $database_status = OSCAR::oda::check_oscar_database(
             \%options,
