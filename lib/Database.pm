@@ -2080,7 +2080,7 @@ sub set_images ($$$) {
         print "DB_DEBUG>$0:\n====> in Database::set_images SQL : $sql\n"
             if $$options_ref{debug};
         if (do_insert($sql, "Images", $options_ref, $error_ref) == 0) {
-            carp "DB_DEBUG>$0:\n====>Failed to insert values via << $sql >>"
+            carp "DB_DEBUG>$0:\n====>Failed to insert values via << $sql >>";
             return 0;
         }
     } else {
