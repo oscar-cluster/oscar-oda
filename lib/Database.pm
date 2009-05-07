@@ -182,6 +182,7 @@ $options{debug} = 1
               oda_query_single_result
               set_opkgs_selection_data
               get_opkgs_selection_data
+              get_selected_opkgs
 	      );
 
 ######################################################################
@@ -2998,6 +2999,28 @@ sub get_opkgs_selection_data {
     return %selection_data;
 }
 
+# Returns the name of all selected OPKGs.
+#
+# Input: None
+# Return: an array of OPKGs names (the selected OPKGs).
+sub get_selected_opkgs () {
+    my @selected_opkgs;
+
+    my $sql = "SELECT * FROM Group_Packages WHERE group_name='oscar_server' ".
+              "and selected='".OSCAR::ODA_Defs::SELECTED()."'";
+
+    my @res = ();
+    if (OSCAR::Database_generic::do_select ($sql, \@res, undef, undef) == 0) {
+        carp "ERROR: Impossible to query Group_Packages ($sql)\n";
+        return undef;
+    }
+    foreach my $ref (@res){
+        my $opkg = $$ref{package};
+        push (@selected_opkgs, $opkg);
+    }
+
+    return @selected_opkgs
+}
 
 1;
 
