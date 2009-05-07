@@ -1,4 +1,4 @@
-1.4.5 (not yet released):
+1.4.5:
 - Include perldoc documentation for OSCAR::ODA_Defs.
 - Add a new function to get the list of all selected OPKGs (avoid code
 duplication in other OSCAR components).
