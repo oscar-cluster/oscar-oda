@@ -77,6 +77,7 @@ use OSCAR::Utils qw (print_array);
 use OSCAR::Logger;
 use OSCAR::ConfigManager;
 use OSCAR::ODA_Defs;
+use OSCAR::Utils;
 use Data::Dumper;
 
 # oda may or may not be installed and initialized
@@ -1851,13 +1852,18 @@ sub set_all_groups ($$$) {
 #                    name.                                                     #
 #        - options_ref, ???                                                    #
 #        - error_strings_ref, ???                                              #
-# Return: ???                                                                  #
+# Return: 1 if success, 0 else.                                                #
 ################################################################################
 sub set_group_nodes ($$$$) {
     my ($group,
         $nodes_ref,
         $options_ref,
         $error_ref) = @_;
+
+    if (!OSCAR::Utils::is_a_valid_string ($group)) {
+        carp "ERROR: Invalid group";
+        return 0;
+    }
     my %field_value_hash = ( "group_name" => $group );
     my $success = 0;
     foreach my $node (@$nodes_ref){
@@ -1865,6 +1871,10 @@ sub set_group_nodes ($$$$) {
                                                $options_ref,
                                                $error_ref);
         my $node_id = $$node_ref{id};
+        if (!OSCAR::Utils::is_a_valid_string ($node_id)) {
+            carp "ERROR: Invalid node ID";
+            return 0;
+        }
         my $sql = "SELECT * FROM Group_Nodes WHERE group_name='$group' ".
                   "AND node_id=$node_id";
         my @results = ();
