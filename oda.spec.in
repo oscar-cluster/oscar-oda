@@ -28,9 +28,9 @@ Set of scripts and Perl modules for the management of the OSCAR database.
 %setup -n %{name}
 
 %build
-make install DESTDIR=$RPM_BUILD_ROOT
 
 %install 
+make install DESTDIR=$RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
