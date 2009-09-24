@@ -1,5 +1,6 @@
 1.4.6 (not yet released):
 - Better handling of errors.
+- Fix the Debian copyright.
 - Modification of the spec so we can create the RPM on FC11 (patch from 
 Christophe Trophime).
 
