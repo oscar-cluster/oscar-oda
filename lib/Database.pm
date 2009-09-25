@@ -936,6 +936,9 @@ sub get_gateway ($$$$$) {
 # This function returns the interface on the headnode that is on the same      #
 # network as the compute nodes, typically = ./install_cluster <iface>          #
 #                                                                              #
+# Input: options_ref, optional - specify options for the query.                #
+#        error_string_ref, optional - string display in front of each error    #
+#                          msg.                                                #
 # Return: the network interface id if success (e.g. "eth0"), undef else.       #
 ################################################################################
 sub get_headnode_iface ($$) {
@@ -1049,6 +1052,9 @@ sub initialize_selected_flag ($$) {
                          $error_strings_ref));
 }
 
+# Input: selector, DEPRECATED OPTION
+#
+# TODO: Remove the selector input parameter.
 sub is_installed_on_node ($$$$$$) {
     my ($package,
         $node_name,
