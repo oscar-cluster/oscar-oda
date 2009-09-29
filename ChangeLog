@@ -1,3 +1,8 @@
+1.4.7 (not yet released):
+- [Ticket #430] Avoid misleading message when drop the database in
+non-interactive mode.
+- Code cleaning-up.
+
 1.4.6:
 - Better handling of errors.
 - Fix the Debian copyright.
