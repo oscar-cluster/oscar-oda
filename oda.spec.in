@@ -8,7 +8,7 @@
 
 Summary:        OSCAR DatabAse.
 Name:           oda
-Version:        1.4.6
+Version:        1.4.7
 Release:        1
 Vendor:         Open Cluster Group <http://OSCAR.OpenClusterGroup.org/>
 Distribution:   OSCAR
@@ -40,6 +40,8 @@ make install DESTDIR=$RPM_BUILD_ROOT
 %{manpref}/*
 
 %changelog
+* Thu Oct 08 2009 Geoffroy Vallee <valleegr@ornl.gov> 1.4.7-1
+- new upstream version (see ChangeLog for more details).
 * Fri Sep 25 2009 Geoffroy Vallee <valleegr@ornl.gov> 1.4.6-1
 - new upstream version (see ChangeLog for more details).
 * Thu May 07 2009 Geoffroy Vallee <valleegr@ornl.gov> 1.4.5-1

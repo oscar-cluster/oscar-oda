@@ -1,4 +1,4 @@
-1.4.7 (not yet released):
+1.4.7:
 - [Ticket #430] Avoid misleading message when drop the database in
 non-interactive mode.
 - Code cleaning-up.
