@@ -1,3 +1,6 @@
+1.4.8 (not yet released):
+- Improve the "make clean" capability.
+
 1.4.7:
 - [Ticket #430] Avoid misleading message when drop the database in
 non-interactive mode.

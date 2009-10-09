@@ -17,6 +17,7 @@ uninstall:
 	for dir in ${SUBDIRS} ; do ( cd $$dir ; ${MAKE} uninstall ) ; done
 
 clean:
+	@rm -f *~
 	@rm -f build-stamp configure-stamp
 	@rm -rf debian/$(PKG)
 	@rm -f debian/files
