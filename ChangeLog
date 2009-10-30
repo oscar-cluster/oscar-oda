@@ -1,4 +1,4 @@
-1.4.8 (not yet released):
+1.4.8:
 - Improve the "make clean" capability.
 - Add a dependency to ORM for both RPMs and .debs.
 
