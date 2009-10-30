@@ -20,6 +20,7 @@ BuildRoot:      %{_localstatedir}/tmp/%{name}-root
 BuildArch:      noarch
 AutoReqProv: 	no
 Requires:	oscar-base-lib
+Requires:   orm
 
 %description
 Set of scripts and Perl modules for the management of the OSCAR database.

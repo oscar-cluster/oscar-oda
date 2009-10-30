@@ -7,6 +7,6 @@ Standards-Version: 3.7.2
 
 Package: oda
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, liboscar
+Depends: ${shlibs:Depends}, ${misc:Depends}, liboscar, orm
 Description: OSCAR DatabAse
  Set of scripts and Perl modules for the management of the OSCAR database.
