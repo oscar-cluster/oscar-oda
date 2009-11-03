@@ -906,7 +906,7 @@ sub get_image_info_with_name ($$$) {
     my ($image,
         $options_ref,
         $error_strings_ref) = @_;
-    print "Getting information about the image...\n";
+    print "Getting information about the image ($image)...\n";
     my $sql = "SELECT * FROM Images WHERE Images.name='$image'";
     print "DB_DEBUG>$0:\n".
           "====> in Database::get_image_info_with_name SQL : $sql\n"
