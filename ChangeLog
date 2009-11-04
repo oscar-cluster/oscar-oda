@@ -1,5 +1,6 @@
 1.4.9 (not yet released):
 - Improve output.
+- Return an error code when the connection to the database fails.
 
 1.4.8:
 - Improve the "make clean" capability.

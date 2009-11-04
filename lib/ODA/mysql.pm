@@ -134,8 +134,10 @@ sub oda_connect ($$) {
             # to release a previous lock unexpectedly.
             $database_handle->{AutoCommit} = 1;
         } else {
-            push @$error_strings_ref,
-            "Cannot connect to database <$$options_ref{database}> as user <$$options_ref{user}>";
+            push (@$error_strings_ref,
+                "ERROR: Cannot connect to database <$$options_ref{database}> ".
+                "as user <$$options_ref{user}>");
+            return 0;
         }
     } else {
         print STDERR "WARNING: already connected to the database\n";
