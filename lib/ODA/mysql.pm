@@ -761,9 +761,9 @@ sub do_query {
     
     # take care of faking any non-passed input parameters, and
     # set any options to their default values if not already set
-    my ( $options_ref, $error_strings_ref ) =
-	fake_missing_parameters($passed_options_ref,
-				$passed_error_strings_ref);
+    my ( $options_ref, $error_strings_ref ) = fake_missing_parameters(
+                                                    $passed_options_ref,
+                                                    $passed_error_strings_ref);
     my $ignored_number_of_records;
     my $number_of_records_ref = ( defined $passed_number_of_records_ref ) ? 
 	$passed_number_of_records_ref : \$ignored_number_of_records;
@@ -781,19 +781,19 @@ sub do_query {
         if $$options_ref{verbose};
     my $statement_handle = $database_handle->prepare($sql_command);
     if (!$statement_handle) {
-	push @$error_strings_ref,
-	"error preparing sql statement <$sql_command> on database <$$options_ref{database}>:\n$DBI::errstr";
-	oda_disconnect($options_ref, $error_strings_ref)
-	    if !$was_connected_flag;
-	return 0;
+        push (@$error_strings_ref,
+              "error preparing sql statement <$sql_command> on database <$$options_ref{database}>:\n$DBI::errstr");
+        oda_disconnect($options_ref, $error_strings_ref) 
+            if !$was_connected_flag;
+        return 0;
     }
     if (!$statement_handle->execute()) {
-	push @$error_strings_ref,
-	"error executing sql statement <$sql_command> on database <$$options_ref{database}>:\n$DBI::errstr";
-	oda_disconnect( $options_ref,
-			$error_strings_ref )
-	    if !$was_connected_flag;
-	return 0;
+        push (@$error_strings_ref,
+              "error executing sql statement <$sql_command> on database ".
+              "<$$options_ref{database}>:\n$DBI::errstr");
+        oda_disconnect( $options_ref, $error_strings_ref )
+            if !$was_connected_flag;
+        return 0;
     }
     
     while (my $result_hash_ref = 

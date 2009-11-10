@@ -84,6 +84,7 @@ use vars qw(@EXPORT $VERSION);
 use base qw(Exporter);
 use OSCAR::PackagePath;
 use OSCAR::oda;
+use OSCAR::Utils;
 use File::Basename;
 
 # oda may or may not be installed and initialized
@@ -175,8 +176,19 @@ sub do_insert ($$$$){
     return  $success;
 }
 
+# Return: 1 if success, 0 else.
 sub do_update ($$$$) {
     my ($sql, $table, $options_ref, $error_strings_ref) = @_;
+
+    # Some sanity checks.
+    if (!is_a_valid_string ($sql)) {
+        carp "ERROR: Invalid SQL command";
+        return 0;
+    }
+    if (!is_a_valid_string ($table)) {
+        carp "ERROR: Invalid table name";
+        return 0;
+    }
 
     my $debug_msg = "DB_DEBUG>$0:\n====> in Database::do_update SQL : $sql\n";
     print "$debug_msg" if $$options_ref{debug};
