@@ -198,7 +198,7 @@ sub do_update ($$$$) {
 
     my $success = OSCAR::oda::do_sql_command($options_ref,
             $sql,
-            "UDATE Table $table",
+            "UPDATE Table $table",
             "Failed to update $table table",
             $error_strings_ref);
     $error_strings_ref = \@error_strings;

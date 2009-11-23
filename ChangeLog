@@ -1,3 +1,8 @@
+1.4.10 (not yet released):
+- Fix a SQL syntax error when updating a table (patch from Olivier Lahaye).
+- Fix a problem when deleting OPKG configuration values (patch from Olivier
+Lahaye).
+
 1.4.9:
 - Improve output.
 - Return an error code when the connection to the database fails.

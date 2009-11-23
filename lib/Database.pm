@@ -2246,9 +2246,8 @@ sub del_pkgconfig_vars {
         my $id = $e->{config_id};
 
         my $sql = "DELETE FROM Packages_config WHERE config_id='$id'";
-        my @result;
         die "$0:Failed to delete values via << $sql >>"
-            if (!do_update($sql, \@result, \%options, \@errors));
+            if (!do_update($sql, "Packages_config", \%options, \@errors));
     }
     return 1;
 }
