@@ -1,3 +1,6 @@
+1.4.11 (not yet released):
+- Make sure the client's hostname is set (patch from Olivier Lahaye).
+
 1.4.10:
 - Fix a SQL syntax error when updating a table (patch from Olivier Lahaye).
 - Fix a problem when deleting OPKG configuration values (patch from Olivier

@@ -2279,8 +2279,10 @@ sub set_node_with_group {
             carp "ERROR: Unknown cluster ID";
             return 0;
         }
-        $sql = "INSERT INTO Nodes (cluster_id, name, group_name) ".
-               "SELECT $cluster_id, '$node', '$group'";
+        # Assume hostname = name.(sync_hosts): required for client postinstall 
+        # (e.g.: sge)
+        $sql = "INSERT INTO Nodes (cluster_id, hostname, name, group_name) ".
+               "SELECT $cluster_id, '$node', '$node', '$group'";
         print "DB_DEBUG>$0:\n====> in Database::set_node_with_group SQL: $sql\n"
             if $$options_ref{debug};
         if (do_insert($sql, "Nodes", $options_ref, $error_ref) == 0) {
