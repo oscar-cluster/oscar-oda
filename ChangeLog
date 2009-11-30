@@ -1,4 +1,4 @@
-1.4.11 (not yet released):
+1.4.11:
 - Make sure the client's hostname is set (patch from Olivier Lahaye).
 
 1.4.10:
