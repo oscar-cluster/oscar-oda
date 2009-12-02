@@ -1,3 +1,8 @@
+1.4.12 (not yet released):
+- Revisit the initialization of the database: move some tasks that are not ODA
+specific outside of the ODA bootstrapping capability (reported by Olivier
+Lahaye).
+
 1.4.11:
 - Make sure the client's hostname is set (patch from Olivier Lahaye).
 

@@ -103,20 +103,13 @@ sub init_db ($) {
             carp "ERROR: Impossible to populate the database ($cmd)\n";
             return -1;
         }
+
+        # TODO: That should not be there, this is not about the database
+        # initialization but the OSCAR initialization.
         $cmd = "$scripts_path/populate_default_package_set";
         my $exit_status = system($cmd);
         if ($exit_status) {
             carp ("Couldn't set up a default package set ($exit_status)");
-            return -1;
-        }
-        require OSCAR::ConfigFile;
-        my $iface = OSCAR::ConfigFile::get_value ("/etc/oscar/oscar.conf",
-            undef,
-            "OSCAR_NETWORK_INTERFACE");
-        $iface = "eth0" if (!defined ($iface));
-        $cmd = "$scripts_path/set_global_oscar_values --interface $iface";
-        if (system ($cmd)) {
-            carp "ERROR: Impossible to set global OSCAR values";
             return -1;
         }
 
