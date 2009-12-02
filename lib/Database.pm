@@ -1354,6 +1354,7 @@ sub link_node_nic_to_network ($$$$$) {
 }
 
 
+# Return: 1 if success, 0 else.
 # TODO: this function has to been extended for the case where we do not use a
 #       real db but configuration files.
 sub update_node ($$$$) {
