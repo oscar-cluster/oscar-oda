@@ -147,11 +147,6 @@ if ($db_type eq "db") {
 
     my $msg = "";
 
-    my $os = &distro_detect_or_die();
-
-    my $distro_string = $os->{compat_distro} . "-" . $os->{compat_distrover} .
-        "-" . $os->{arch};
-
     if (OSCAR::Database::create_database_tables (\%options, \@error_strings)) {
         die "ERROR: Impossible to create the database tables";
     }
