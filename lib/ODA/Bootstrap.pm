@@ -94,11 +94,13 @@ sub init_db ($) {
         # the db specific initialization. This will avoid code duplication.
         print "--> Password ok, now creating the database\n";
         $cmd = "$scripts_path/create_oscar_database";
+        print "--> Executing $cmd\n";
         if (system ($cmd)) {
             carp "ERROR: Impossible to create the database";
             return -1;
         }
         $cmd = "$scripts_path/prepare_oda";
+        print "--> Executing $cmd\n";
         if (system ($cmd)) {
             carp "ERROR: Impossible to populate the database ($cmd)\n";
             return -1;
@@ -107,9 +109,9 @@ sub init_db ($) {
         # TODO: That should not be there, this is not about the database
         # initialization but the OSCAR initialization.
         $cmd = "$scripts_path/populate_default_package_set";
-        my $exit_status = system($cmd);
-        if ($exit_status) {
-            carp ("Couldn't set up a default package set ($exit_status)");
+        print "--> Execution $cmd\n";
+        if (system($cmd)) {
+            carp ("ERROR: Couldn't set up a default package set ($cmd)");
             return -1;
         }
 
@@ -119,10 +121,11 @@ sub init_db ($) {
             \%errors);
         if (!$database_status) {
             carp "ERROR: The database is supposed to have been created but\n".
-                  " we cannot connect to it.\n";
+                 " we cannot connect to it.\n";
             return -1;
         }
     }
+
     return 0;
 }
 
@@ -253,18 +256,19 @@ sub bootstrap_oda ($) {
                                       $prereq_mode);
 
     # Now we can really initialize the database, eventhing is ready.
-    if ($config->{db_type} eq "file") {
+    my $oda_type = $config->{'oda_type'};
+    if ($oda_type eq "file") {
         if (init_file_db()) {
             carp "ERROR: Impossible to initialize ODA\n";
             return -1;
         }
-    } elsif ($config->{db_type} eq "db") {
+    } elsif ($oda_type eq "db") {
         if (init_db ($oscar_configurator)) {
             carp "ERROR: Impossible to initialize ODA\n";
             return -1;
         }
     } else {
-        carp "ERROR: Unknow ODA type ($config->{db_type})\n";
+        carp "ERROR: Unknown ODA type ($oda_type)\n";
         return -1;
     }
     

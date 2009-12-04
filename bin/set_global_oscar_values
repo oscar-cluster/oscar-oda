@@ -44,6 +44,7 @@ use OSCAR::Database_generic;
 use OSCAR::Package;
 use OSCAR::PackagePath;
 use OSCAR::ConfigManager;
+use OSCAR::Utils;
 use POSIX;
 use OSCAR::oda;
 use Carp;
@@ -104,7 +105,7 @@ usage(0) if ! ( exists($cmd_options{interface}) );
 usage(0) if exists $cmd_options{help};
 
 print "DB_DEBUG>$0:\n====> after GetOptions ARGV=<@ARGV>\n" if $cmd_options{debug};
-oda::print_hash( "", "DB_DEBUG>$0:\n====> options after GetOptions", \%cmd_options) if $cmd_options{debug};
+OSCAR::Utils::print_hash( "", "DB_DEBUG>$0:\n====> options after GetOptions", \%cmd_options) if $cmd_options{debug};
 
 `/sbin/ifconfig $cmd_options{interface} > /dev/null 2>&1`;
 
