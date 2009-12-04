@@ -157,6 +157,14 @@ if ($db_type eq "db") {
     }
 
 
+    ###########################################################################
+    # TODO: Everything between the marks should not actually be there. This   #
+    # code is about the OSCAR initialization, not the database initialization #
+    # so it should be done outside of ODA, during the bootstrapping.          #
+    #                                                                         #
+    #                              Begin Mark                                 #
+    ###########################################################################
+
     # The env variable $ENV{OSCAR_HEAD_INTERNAL_INTERFACE} should be defined
     # at wizard_prep. If not, we setup by default (to be eth0).
     # This is necessary for the embeded script "set_global_oscar_values"
@@ -217,7 +225,11 @@ if ($db_type eq "db") {
     $cmd = $oscar_cfg->{'binaries_path'} . "/populate_oda_packages_table" 
            . ($options{debug}?" --debug":"");
     my $exit_status = system($cmd)/256;
-    croak("Couldn't populate packages table") if $exit_status;
+    croak("ERROR: Couldn't populate packages table") if $exit_status;
+
+    ###########################################################################
+    #                                Mark End                                 #
+    ###########################################################################
 
 
     OSCAR::oda::oda_disconnect( \%options , undef );
