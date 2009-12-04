@@ -77,6 +77,9 @@ use OSCAR::Utils qw (print_array);
 use OSCAR::Logger;
 use OSCAR::ConfigManager;
 use OSCAR::ODA_Defs;
+use OSCAR::SystemServices;
+use OSCAR::SystemServicesDefs;
+use OSCAR::OCA::OS_Settings;
 use OSCAR::Utils;
 use Data::Dumper;
 
@@ -2792,47 +2795,62 @@ sub create_database ($$) {
 # Starts the appropriate database service.                                     #
 #                                                                              #
 # Input: None.                                                                 #
-# Return: None.                                                                #
+# Return: o if success, -1 else.                                               #
 ################################################################################
 sub start_database_service {
-    my $db_service_name = "";
-    my ($db_type, $chk) = split(':', $ENV{OSCAR_DB});
-    if( $db_type eq "mysql" || $db_type eq "" ){
-        # find the name of the mysql service and start the mysql server,
-        # and make sure it is run on every system reboot
-        my ($server_distrib, $server_distrib_version) = which_distro_server();
-        $db_service_name = which_mysql_name($server_distrib,
-                                            $server_distrib_version);
-    } elsif( $db_type eq "pgsql" ) {
-        $db_service_name = "postgresql";
+    # We get the configuration from the OSCAR configuration file.
+    my $oscar_configurator = OSCAR::ConfigManager->new();
+    if ( ! defined ($oscar_configurator) ) {
+        carp "ERROR: [$0] start_database_service:Impossible to get the OSCAR ".
+             "configuration";
+        return -1;
+    }
+    my $config = $oscar_configurator->get_config();
+    if ( !defined($config) ) {
+        carp "ERROR: [$0] Unable to parse oscar.conf";
+        return -1;
     }
 
-    my $command="/etc/init.d/$db_service_name status";
-    my @command_output = `$command`;
-    my $status = $?;
-    chomp @command_output;
-    if ( ! grep( /is\ running/, @command_output ) || ! $status ) {
-        print "Starting the $db_service_name database server ...\n";
-        my $command = "/etc/init.d/$db_service_name start";
-        print "$command\n";
-        if ( system( $command ) ) {
-        my @error_strings = ();
-        OSCAR::oda::oda_disconnect( \%options, undef );
-        warn shift @error_strings while @error_strings;
-        die "DB_DEBUG>$0:\n====> cannot start the $db_service_name database ".
-            "server!";
-        }
-        sleep 2; # The database deamon may be starting in background. We wait
-                 # 2 seconds to make sure the deamon is up (do not ask me why
-                 # 2s and not more or less).
+    my $oda_type = $config->{'oda_type'};
+    if (!OSCAR::Utils::is_a_valid_string ($oda_type)) {
+        carp "ERROR: [$0] ODA_TYPE not set in oscar.conf";
+        return -1;
     }
-    print "Making sure that the $db_service_name database server starts on ".   
-          "subsequent boots ...\n";
-    $command = "chkconfig $db_service_name on";
-    print "$command\n";
-    warn "DB_DEBUG>$0:\n====> WARNING: the $db_service_name database service ".
-         "may not start on subsequent reboots"
-        if system( $command );
+    if ($config->{'oda_type'} eq "file") { # test ODA_TYPE db|file
+        oscar_log_subsection (">$0: Not using a real database, connection done");
+        return 0;
+    }
+
+    my $db_type = $config->{'db_type'};
+    if (!OSCAR::Utils::is_a_valid_string ($db_type)) {
+        carp "ERROR: [$0] DB_TYPE not set in oscar.conf";
+        return -1;
+    }
+
+    my $daemon = $db_type."_daemon";
+    if (!OSCAR::Utils::is_a_valid_string($daemon)) {
+        carp "ERROR: [$0] Unknown DB_TYPE=".$db_type."\n".
+        return -1;
+    }
+    my $db_daemon = OSCAR::OCA::OS_Settings::getitem($daemon);
+    if (enable_system_services($db_daemon)) {
+        # It's not an dramatic error if we are still able to start the DB.
+        # (so no return)
+        print "WARNING: [$0] start_database_service: Unable to enable ".
+              $db_daemon." service at each boot.\n";
+    }
+    # Start the database service.
+    if (system_service($db_type, OSCAR::SystemServicesDefs::START())) {
+        carp "ERROR: [$0] start_database_service: Unable to start ".
+             $db_daemon." service.";
+        return -1;
+    } 
+
+    sleep 2; # The database deamon may be starting in background. We wait
+             # 2 seconds to make sure the deamon is up (do not ask me why
+             # 2s and not more or less).   
+
+    return 0;
 }
 
 ################################################################################
@@ -2851,7 +2869,6 @@ sub start_database_service {
 sub create_database_tables ($$) {
     my ($options, $error_strings) = @_;
 
-    # 
     my $tables_are_created = 0;
     my $all_table_names_ref = OSCAR::oda::list_tables( $options,
                                                 $error_strings );
@@ -2867,6 +2884,8 @@ sub create_database_tables ($$) {
               "===========================\n"
             if $options{debug} || $options{verbose};
     }
+
+    return 0;
 }
 
 #
@@ -3191,6 +3210,3 @@ An API allows one to save image data in ODA:
 
 =cut
 
-The function returns 1 if sucess, 0 else.
-
-=cut
