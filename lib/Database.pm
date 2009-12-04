@@ -220,7 +220,7 @@ sub database_connect ($$) {
     }
     my $config = $oscar_configurator->get_config();
 
-    if ($config->{db_type} ne "db") {
+    if ($config->{oda_type} ne "db") {
         oscar_log_subsection (">$0: Not using a real database, connection done");
         return 1;
     }
@@ -445,7 +445,7 @@ sub get_nics_with_name_node {
     }
     my $config = $oscar_configurator->get_config();
 
-    if ($config->{db_type} eq "file") {
+    if ($config->{oda_type} eq "file") {
         require OSCAR::Network;
         my ($ip, $broadcast, $net) = OSCAR::Network::interface2ip ($nic);
         if (!defined $ip || !defined $broadcast || !defined $net) {
@@ -455,7 +455,7 @@ sub get_nics_with_name_node {
         $results = { 'ip' => $ip,
                      'broadcast' => $broadcast,
                      'net' => $net};
-    } elsif ($config->{db_type} eq "db") {
+    } elsif ($config->{oda_type} eq "db") {
         my $sql ="SELECT Nics.* FROM Nics, Nodes ".
                 "WHERE Nodes.id=Nics.node_id AND Nodes.name='$node' " .
                 "AND Nics.name='$nic'";
@@ -467,7 +467,7 @@ sub get_nics_with_name_node {
             return -1;
         }
     } else {
-        carp "ERROR: Unknow ODA mode ($config->{db_type})";
+        carp "ERROR: Unknow ODA mode ($config->{oda_type})";
         return -1;
     }
     return 0;
@@ -523,7 +523,7 @@ sub get_packages {
     }
     my $config = $oscar_configurator->get_config();
 
-    if ($config->{db_type} eq "db") {
+    if ($config->{oda_type} eq "db") {
         my $sql = "SELECT * FROM Packages";
         if (defined($sel{class})) {
             $sel{__class} = $sel{class};
@@ -542,14 +542,14 @@ sub get_packages {
             "====> in Database::get_packagess SQL : $sql\n")
             if $$options_ref{debug};
         return do_select($sql,$results_ref, $options_ref, $error_strings_ref);
-    } elsif ($config->{db_type} eq "file") {
+    } elsif ($config->{oda_type} eq "file") {
         oscar_log_subsection (">$0:\n".
             "====> getting OPKGs info from configuration file\n")
             if $$options_ref{debug};
         carp "ERROR: not yet implemented ($0)\n";
         return 0;
     } else {
-        carp "ERROR: Unknown database type ($config->{db_type})";
+        carp "ERROR: Unknown database type ($config->{oda_type})";
         return 0;
     }
 }
@@ -953,15 +953,15 @@ sub get_headnode_iface ($$) {
     }
     my $config = $oscar_configurator->get_config();
 
-    if ($config->{db_type} eq "file") {
+    if ($config->{oda_type} eq "file") {
         return $config->{nioscar};
-    } elsif ($config->{db_type} eq "db") {
+    } elsif ($config->{oda_type} eq "db") {
         my $cluster_ref = get_cluster_info_with_name("oscar",
                                                      $options_ref,
                                                      $error_strings_ref);
         return $$cluster_ref{headnode_interface};
     } else {
-        carp "ERROR: Unknow ODA mode ($config->{db_type})";
+        carp "ERROR: Unknow ODA mode ($config->{oda_type})";
         return undef;
     }
 }
@@ -979,11 +979,11 @@ sub get_install_mode ($$) {
     }
     my $config = $oscar_configurator->get_config();
 
-    if ($config->{db_type} eq "file") {
+    if ($config->{oda_type} eq "file") {
         # TODO: we currently return a fack value, we assume we use a basic 
         # installation mode
         return "systemimager-rsync";
-    } elsif ($config->{db_type} eq "db") {
+    } elsif ($config->{oda_type} eq "db") {
         my $cluster = "oscar";
 
         my $cluster_ref = get_cluster_info_with_name($cluster, 
@@ -991,7 +991,7 @@ sub get_install_mode ($$) {
             $error_strings_ref);
         return $$cluster_ref{install_mode};
     } else {
-        carp "ERROR: Unknown ODA mode ($config->{db_type})";
+        carp "ERROR: Unknown ODA mode ($config->{oda_type})";
     }
     return undef
 }
