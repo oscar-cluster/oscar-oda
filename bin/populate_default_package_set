@@ -37,6 +37,7 @@
 use strict;
 use lib "$ENV{OSCAR_HOME}/lib";
 use OSCAR::Database;
+use OSCAR::Database_generic;
 use OSCAR::Logger;
 use OSCAR::oda;
 use OSCAR::Package;
@@ -156,9 +157,10 @@ if ( @package_set_names )  {
         my $error_msg="error adding package <$package_name> to package set ".
                       "<$DEFAULT>";
         @errors = ($error_msg);
-        if ( ! insert_into_table(\%options, 
-                                 "Group_Packages", 
-                                 \%field_value_hash,\@errors) ){
+        if ( ! OSCAR::Database_generic::insert_into_table(\%options, 
+                                                        "Group_Packages", 
+                                                        \%field_value_hash,
+                                                        \@errors) ){
             $success = 0;
             warn "DB_DEBUG>$0:\n====> $error_msg";
         }
@@ -175,10 +177,11 @@ foreach my $package_ref (@installable_packages){
     # installable tag is kept on config.xml and this is an easier way
     # to avoid tracing not-installable packages (e.g., networking).
     my $requested = 2;
+    my @pkg_list = ($package_name);
     $success = OSCAR::Database::update_node_package_status(
                     \%options,
                     $OSCAR_SERVER_NODE,
-                    $package_name,
+                    \@pkg_list,
                     $requested,
                     \@errors,
                     undef);
