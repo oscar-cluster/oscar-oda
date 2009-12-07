@@ -68,18 +68,6 @@ sub init_db ($) {
         \%errors);
     print "Database_status: $database_status\n";
     if (!$database_status) {
-#        require OSCAR::Database_generic;
-#        require OSCAR::Database;
-#        OSCAR::Database_generic::init_database_passwd ($configurator);
-#        my @errors;
-#        system "/usr/bin/oda create_database";
-#        if (OSCAR::Database::create_database (undef, \@errors) == 0) {
-#            carp "ERROR: Impossible to create the database (" 
-#                 . join(",", @errors) . ")";
-#            return -1;
-#        }
-#        my $ret = OSCAR::Database_generic::create_table (undef, undef);
-#        print "--> Create table returns: $ret\n";
         my $scripts_path = $config->{'binaries_path'};
         my $cmd =  "$scripts_path/make_database_password";
         my $ret = system ($cmd);
@@ -93,25 +81,10 @@ sub init_db ($) {
         # should be composed by two phases: the common initialization, and
         # the db specific initialization. This will avoid code duplication.
         print "--> Password ok, now creating the database\n";
-        $cmd = "$scripts_path/create_oscar_database";
-        print "--> Executing $cmd\n";
-        if (system ($cmd)) {
-            carp "ERROR: Impossible to create the database";
-            return -1;
-        }
         $cmd = "$scripts_path/prepare_oda";
         print "--> Executing $cmd\n";
         if (system ($cmd)) {
             carp "ERROR: Impossible to populate the database ($cmd)\n";
-            return -1;
-        }
-
-        # TODO: That should not be there, this is not about the database
-        # initialization but the OSCAR initialization.
-        $cmd = "$scripts_path/populate_default_package_set";
-        print "--> Execution $cmd\n";
-        if (system($cmd)) {
-            carp ("ERROR: Couldn't set up a default package set ($cmd)");
             return -1;
         }
 
