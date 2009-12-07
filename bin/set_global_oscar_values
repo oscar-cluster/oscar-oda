@@ -183,6 +183,26 @@ else {
 my $global_values_table = "Clusters";
 
 my @error_strings = ();
+my $ret;
+
+# Set up "Group" table with the global values.
+# The current group values are..
+#my @groups = ("oscar_server", "oscar_clients", "Default", "image", "core", "included");
+my %groups = ("oscar_server" => "node",
+              "oscar_clients"=> "node",
+              "Default" => "package",
+              "image" => "image",
+              "core" => "package",
+              "included" => "package");
+# We go through each key so if in case the database has been corrupted (a group
+# has been deleted for instance), we can try to recover.
+foreach my $group (keys %groups) {
+    $ret = set_groups($group, \%options, @error_strings, $groups{$group});
+    if ($ret == 0) {
+        die "ERROR: Impossible to set all group ($ret, "
+            . join(".", @error_strings).").";
+    }
+}
 
 # Populate "Clusters" table.
 # If the table is empty, insert data into the Cluster table.
@@ -190,7 +210,6 @@ my @error_strings = ();
 # Updating will not happen at the normal OSCAR installation
 # unless a user manually runs this script.
 my $query_results = get_cluster_info_with_name("",\%options,\@error_strings);
-my $ret;
 if ( !$query_results ){
     %field_value_hash = ( "name" => "oscar",
                             "oscar_version" => $oscar_version,
@@ -208,9 +227,9 @@ if ( !$query_results ){
              . join(".", @error_strings).").";
     }
 } else {
-	print "DB_DEBUG>$0:\n====> very strange, there are more than 1 records table <$global_values_table>\n"
-	    if (ref($query_results) ne "HASH") && (scalar @$query_results > 1) ;
-	print "Modifying the global oscar information record\n";
+    print "DB_DEBUG>$0:\n====> very strange, there are more than 1 records table <$global_values_table>\n"
+        if (ref($query_results) ne "HASH") && (scalar @$query_results > 1) ;
+    print "Modifying the global oscar information record\n";
     %field_value_hash = ("oscar_version" => $oscar_version,
                             "server_distribution" => $oscar_server_distribution,
                             "server_distribution_version" => $oscar_server_distribution_version,
