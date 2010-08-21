@@ -1,3 +1,6 @@
+1.4.14 (not yet released):
+- Fix the prereqs for the support of Ubuntu-10-04.
+
 1.4.13:
 - Separate the initialization of ODA and the population of the basic data into
 ODA.
