@@ -1,3 +1,9 @@
+oda (1.4.14-1) lucid; urgency=low
+
+  * New upstream version
+
+ -- Geoffroy Vallee <valleegr@ornl.gov>  Sat, 21 Aug 2010 17:54:36 -0400
+
 oda (1.4.13-1) hardy; urgency=low
 
   * New upstream version
