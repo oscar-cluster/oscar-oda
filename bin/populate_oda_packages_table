@@ -81,17 +81,21 @@ if ($ARGV[0]) {
 	}
     }
     if (!$os) {
-	print "\nCould not detect distro $distro_string among\n".
-	    "configured distro pools!\n";
-	usage(1);
+        print "\nCould not detect distro $distro_string among\n".
+              "configured distro pools!\n";
+        usage(1);
     }
-    print "Populating Packages table for distribution: $distro_string\n";
+    print "Populating Packages table for distribution: istro_string\n";
 }
 
 print "Detecting local distro...\n";
 if (!$os) {
     $os = &distro_detect_or_die();
     $distro_string = &os_distro_string($os);
+}
+
+if (!OSCAR::Utils::is_a_valid_string ($distro_string)) {
+    die "ERROR: Impossible to get the distro ID";
 }
 
 print "Connecting to ODA...\n";
@@ -168,6 +172,7 @@ foreach my $opkg (@list_opkgs) {
     my $opkg_data = $output{$opkg};
     $opkg =~ s/opkg-//;
     $$opkg_data{'package'} = $opkg;
+    $$opkg_data{'distro'} = $distro_string;
     $o{$opkg} = $opkg_data;
 }
 OSCAR::Utils::print_hash ("", "OPKGs data:", \%o);
@@ -215,14 +220,14 @@ print "\n[$0]:\n===========================>>>>> ".
 # This needs to clean the tables related to Packages too.
 foreach my $pkg (keys %opkg_to_be_deleted){
     if ($opkg_to_be_deleted{$pkg}){
-	my $version = $opkg_to_be_deleted{$pkg};
-	&delete_packages_related_table($pkg,
-				      \%options,
-				      \@error_strings,
-				      $version);
-	my %sel = (package => $pkg, distro => $distro_string,
-		   version => $version );
-	&delete_package(\%options, \@error_strings, %sel);
+	    my $version = $opkg_to_be_deleted{$pkg};
+	    &delete_packages_related_table($pkg,
+		                               \%options,
+				                       \@error_strings,
+				                       $version);
+	    my %sel = (package => $pkg, distro => $distro_string,
+		           version => $version );
+        &delete_package(\%options, \@error_strings, %sel);
     }
 }
 
@@ -242,7 +247,10 @@ sub is_installed {
     my @results;
     my %scope = ( package => $package, distro => $distro_string );
     $scope{version} = $version if ($version);
-    &get_packages(\@results, \%options, \@error_strings, %scope);
+    OSCAR::Database::get_packages(\@results,
+                                  \%options,
+                                  \@error_strings,
+                                  %scope);
     my $res = pop @results;
     return $res->{id};                    
 }

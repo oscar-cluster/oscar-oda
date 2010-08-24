@@ -1,3 +1,7 @@
+1.4.15 (not yet released):
+- [Ticket #597] Bootstrapping now updates OPKGs data rather than duplicating
+the data for all OPKGs.
+
 1.4.14:
 - Fix the prereqs for the support of Ubuntu-10-04.
 
