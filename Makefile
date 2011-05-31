@@ -1,6 +1,5 @@
 DESTDIR=
 PKGDEST=
-SOURCEDIR=/usr/src/redhat/SOURCES
 PKG=oda
 
 include ./Config.mk
@@ -38,7 +37,7 @@ dist: clean
 rpm: dist
 	sed -e "s/PERLLIBPATH/$(SEDLIBDIR)/" < $(PKG).spec.in \
         > $(PKG).spec
-	cp $(PKG).tar.gz $(SOURCEDIR)
+	cp $(PKG).tar.gz `rpm --eval '%_sourcedir'`
 	rpmbuild -bb ./$(PKG).spec
 	@if [ -n "$(PKGDEST)" ]; then \
         mv `rpm --eval '%{_topdir}'`/RPMS/noarch/$(PKG)-*.noarch.rpm $(PKGDEST); \
