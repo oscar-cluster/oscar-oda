@@ -1,6 +1,7 @@
 1.4.16 (not yet released):
 - Automatically detect the source directory on RPM based systems (patch from
 O. Lahaye).
+- Fix the prereqs for the support of Ubuntu-12.04.
 
 1.4.15:
 - [Ticket #597] Bootstrapping now updates OPKGs data rather than duplicating
