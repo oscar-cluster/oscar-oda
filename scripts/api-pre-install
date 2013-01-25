@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# Copyright © 2003, The Board of Trustees of the University of Illinois. All rights reserved.
+# Copyright ï¿½ 2003, The Board of Trustees of the University of Illinois. All rights reserved.
 # Copyright (c) 2005-2007 The Trustees of Indiana University.  
 #                    All rights reserved.
 # Copyright (c) 2005, Revolution Linux
@@ -22,8 +22,9 @@ use OSCAR::Logger;
 use OSCAR::PackagePath;
 use File::Copy;
 
-my $oda_cmd = "$ENV{OSCAR_HOME}/scripts/oda";
-my $oda_link = "/usr/local/bin/oda";
+# oda is now in /usr/bin
+#my $oda_cmd = "$ENV{OSCAR_HOME}/scripts/oda";
+#my $oda_link = "/usr/local/bin/oda";
 
 my ($db_type, $chk) = split(':', $ENV{OSCAR_DB});
 my $mysqld;
@@ -154,9 +155,10 @@ if ( system("/etc/init.d/$database_daemon status | grep -c stopped > /dev/null 2
   !system("/etc/init.d/$database_daemon start") or croak("Couldn't start $database_daemon");
 }
 
+# OL: oda is now in /usr/bin
 # Make a symlink for oda command to make it available on the standard
 # PATH
-system("ln -s $oda_cmd $oda_link") 
-    if ! -e $oda_link;
+#system("ln -s $oda_cmd $oda_link") 
+#    if ! -e $oda_link;
 
 exit(0);
