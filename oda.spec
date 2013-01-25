@@ -1,26 +1,18 @@
-%define binpref /usr/bin
-%define libpref PERLLIBPATH
-%define manpref /usr/local/man/man1
-%define sharepref /usr/share/oscar/prereqs/oda/
-%define bintarget $RPM_BUILD_ROOT%{binpref}
-%define libtarget $RPM_BUILD_ROOT%{libpref}
-%define mantarget $RPM_BUILD_ROOT%{manpref}
-
 Summary:        OSCAR DatabAse.
 Name:           oda
 Version:        1.4.16
 Release:        1
 Vendor:         Open Cluster Group <http://OSCAR.OpenClusterGroup.org/>
 Distribution:   OSCAR
-Packager:       Geoffroy Vallee <valleegr@ornl.gov>
+Packager:       Olivier Lahaye <olivier.lahaye@cea.fr>
 License:        GPL
 Group:          Development/Libraries
 Source:         %{name}.tar.gz
 BuildRoot:      %{_localstatedir}/tmp/%{name}-root
 BuildArch:      noarch
-AutoReqProv: 	no
-Requires:	oscar-base-lib > 6.0.4
-Requires:   orm
+AutoReqProv:    no
+Requires:       oscar-base-lib > 6.0.4
+Requires:       orm
 
 %description
 Set of scripts and Perl modules for the management of the OSCAR database.
@@ -35,12 +27,16 @@ make install DESTDIR=$RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%{binpref}/*
-%{libpref}/*
-%{sharepref}/*
-%{manpref}/*
+%{_bindir}/*
+%{perl_vendorlib}/*
+%{_datadir}/oscar/prereqs/oda/*
+%{_mandir}/man1/*
 
 %changelog
+* Tue Nov 13 2011 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.16-1
+- Align man location to bin location (no more /usr/local)
+- Update spec: make use of rpm macros paths.
+- Use %_sourcedir to detect the source directory on RPM based systems.
 * Tue Feb 08 2011 Geoffroy Vallee <valleegr@ornl.gov> 1.4.15-1
 - new upstream version (see ChangeLog for more details).
 * Sat Aug 21 2010 Geoffroy Vallee <valleegr@ornl.gov> 1.4.14-1

@@ -21,7 +21,6 @@ clean:
 	@rm -rf debian/$(PKG)
 	@rm -f debian/files
 	@rm -f $(PKG).tar.gz
-	@rm -f $(PKG).spec
 	for dir in ${SUBDIRS} ; do ( cd $$dir ; ${MAKE} clean ) ; done
 
 dist: clean
@@ -35,8 +34,6 @@ dist: clean
 	@rm -f /tmp/$(PKG).tar.gz
 
 rpm: dist
-	sed -e "s/PERLLIBPATH/$(SEDLIBDIR)/" < $(PKG).spec.in \
-        > $(PKG).spec
 	cp $(PKG).tar.gz `rpm --eval '%_sourcedir'`
 	rpmbuild -bb ./$(PKG).spec
 	@if [ -n "$(PKGDEST)" ]; then \
