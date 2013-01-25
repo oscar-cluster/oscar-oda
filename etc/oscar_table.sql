@@ -19,7 +19,7 @@
 -- Copyright (c) 2006-2007 The Trustees of Indiana University.
 --                    All rights reserved.
 --
--- $Id: oscar_table.sql 7155 2008-07-23 19:12:11Z valleegr $
+-- $Id: oscar_table.sql 9486 2012-10-29 09:56:50Z ol222822 $
 --
 
 --
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS Clusters(
     PRIMARY KEY (id, parent_id),
     KEY parent_id ( parent_id ),
     CONSTRAINT Clusters_ibfk_1 FOREIGN KEY (parent_id) REFERENCES Clusters (id) ON DELETE CASCADE
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Groups
 CREATE TABLE IF NOT EXISTS Groups(
@@ -53,20 +53,20 @@ CREATE TABLE IF NOT EXISTS Groups(
     name VARCHAR(100)  not null unique,
     selected  integer  DEFAULT '0',
     type VARCHAR(100)
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Status
 CREATE TABLE IF NOT EXISTS Status(
     id  integer auto_increment not null unique primary key,
     name VARCHAR(100)  not null unique
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Package_status
 
 CREATE TABLE IF NOT EXISTS Package_status(
 	id integer auto_increment not null unique primary key,
 	status VARCHAR(50)
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Packages
 CREATE TABLE IF NOT EXISTS Packages(
@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS Packages(
     vendor VARCHAR(100),
     description  text,
     KEY package ( package )
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Images
 CREATE TABLE IF NOT EXISTS Images(
@@ -93,12 +93,13 @@ CREATE TABLE IF NOT EXISTS Images(
     id  integer   auto_increment not null unique primary key,
     name VARCHAR(100)  not null unique,
     path VARCHAR(100)
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Nodes
 CREATE TABLE IF NOT EXISTS Nodes(
     cluster_id  integer not null default 0,
     cpu_num  integer,
+    gpu_num  integer,
     cpu_speed VARCHAR(100),
     dns_domain VARCHAR(100),
     fqdn VARCHAR(100),
@@ -116,7 +117,7 @@ CREATE TABLE IF NOT EXISTS Nodes(
     KEY group_name ( group_name ),
     CONSTRAINT Nodes_ibfk_1 FOREIGN KEY (cluster_id) REFERENCES Clusters (id) ON DELETE CASCADE,
     CONSTRAINT Nodes_ibfk_2 FOREIGN KEY (group_name) REFERENCES Groups (name) ON DELETE CASCADE ON UPDATE CASCADE
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- OscarFileServer
 CREATE TABLE IF NOT EXISTS OscarFileServer(
@@ -138,7 +139,7 @@ CREATE TABLE IF NOT EXISTS Networks(
     rfc1918 VARCHAR(100),
     KEY cluster_id ( cluster_id ),
     CONSTRAINT Networks_ibfk_1 FOREIGN KEY (cluster_id) REFERENCES Clusters (id) ON DELETE CASCADE
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Nics
 CREATE TABLE IF NOT EXISTS Nics(
@@ -152,7 +153,7 @@ CREATE TABLE IF NOT EXISTS Nics(
     KEY network_id ( network_id ),
     CONSTRAINT Nics_ibfk_1 FOREIGN KEY (node_id) REFERENCES Nodes (id) ON DELETE CASCADE,
     CONSTRAINT Nics_ibfk_2 FOREIGN KEY (network_id) REFERENCES Networks (n_id) ON DELETE CASCADE
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Packages_servicelists
 
@@ -165,7 +166,7 @@ CREATE TABLE IF NOT EXISTS Packages_servicelists(
     KEY group_name ( group_name ),
     CONSTRAINT Packages_servicelists_ibfk_1 FOREIGN KEY (package) REFERENCES Packages (package) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT Packages_servicelists_ibfk_2 FOREIGN KEY (group_name) REFERENCES Groups (name) ON DELETE CASCADE ON UPDATE CASCADE
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Packages_switcher
 CREATE TABLE IF NOT EXISTS Packages_switcher(
@@ -175,7 +176,7 @@ CREATE TABLE IF NOT EXISTS Packages_switcher(
     PRIMARY KEY (package, switcher_name),
 --    KEY package ( package ),
     CONSTRAINT Packages_switcher_ibfk_1 FOREIGN KEY (package) REFERENCES Packages (package) ON DELETE CASCADE ON UPDATE CASCADE
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Packages_config
 CREATE TABLE IF NOT EXISTS Packages_config(
@@ -187,7 +188,7 @@ CREATE TABLE IF NOT EXISTS Packages_config(
     PRIMARY KEY (config_id, package),
     KEY package ( package ),
     CONSTRAINT Packages_config_ibfk_1 FOREIGN KEY (package) REFERENCES Packages (package) ON DELETE CASCADE
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Node_Package_Status
 CREATE TABLE IF NOT EXISTS Node_Package_Status(
@@ -213,7 +214,7 @@ CREATE TABLE IF NOT EXISTS Node_Package_Status(
     CONSTRAINT Node_Package_Status_ibfk_3 FOREIGN KEY (requested) REFERENCES Status (id) ON DELETE CASCADE,
     CONSTRAINT Node_Package_Status_ibfk_4 FOREIGN KEY (curr) REFERENCES Status (id) ON DELETE CASCADE,
     CONSTRAINT Node_Package_Status_ibfk_5 FOREIGN KEY (status) REFERENCES Package_status (id) ON DELETE CASCADE
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Group_Nodes
 CREATE TABLE IF NOT EXISTS Group_Nodes(
@@ -224,7 +225,7 @@ CREATE TABLE IF NOT EXISTS Group_Nodes(
     KEY group_name ( group_name ),
     CONSTRAINT Group_Nodes_ibfk_1 FOREIGN KEY (node_id) REFERENCES Nodes (id) ON DELETE CASCADE,
     CONSTRAINT Group_Nodes_ibfk_2 FOREIGN KEY (group_name) REFERENCES Groups (name) ON DELETE CASCADE ON UPDATE CASCADE
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Group_Packages
 -- This table is used to saved information from Selector, i.e., information
@@ -238,7 +239,7 @@ CREATE TABLE IF NOT EXISTS Group_Packages(
     KEY group_name ( group_name ),
     CONSTRAINT Group_Packages_ibfk_1 FOREIGN KEY (package) REFERENCES Packages (package) ON DELETE CASCADE,
     CONSTRAINT Group_Packages_ibfk_2 FOREIGN KEY (group_name) REFERENCES Groups (name) ON DELETE CASCADE ON UPDATE CASCADE
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Image_Package_Status
 CREATE TABLE IF NOT EXISTS Image_Package_Status(
@@ -264,7 +265,7 @@ CREATE TABLE IF NOT EXISTS Image_Package_Status(
     CONSTRAINT Image_Package_Status_ibfk_3 FOREIGN KEY (requested) REFERENCES Status (id) ON DELETE CASCADE,
     CONSTRAINT Image_Package_Status_ibfk_4 FOREIGN KEY (curr) REFERENCES Status (id) ON DELETE CASCADE,
     CONSTRAINT Image_Package_Status_ibfk_5 FOREIGN KEY (status) REFERENCES Package_status (id) ON DELETE CASCADE
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Wizard_status
 CREATE TABLE IF NOT EXISTS Wizard_status(
@@ -286,7 +287,7 @@ CREATE TABLE IF NOT EXISTS Partitions(
     partition_id      integer   auto_increment not null unique primary key,
     name              CHAR(50),
     distro            CHAR(50)
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Cluster_Partitions
 CREATE TABLE IF NOT EXISTS Cluster_Partitions(
@@ -297,7 +298,7 @@ CREATE TABLE IF NOT EXISTS Cluster_Partitions(
     KEY             partition_id    ( partition_id ),
     CONSTRAINT      Cluster_Partitions_ibfk_1 FOREIGN KEY (cluster_id) REFERENCES Clusters (id) ON DELETE CASCADE,
     CONSTRAINT      Cluster_Partitions_ibfk_2 FOREIGN KEY (partition_id) REFERENCES Partitions (partition_id) ON DELETE CASCADE
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 -- Partition_Nodes
 CREATE TABLE IF NOT EXISTS Partition_Nodes(
@@ -309,7 +310,7 @@ CREATE TABLE IF NOT EXISTS Partition_Nodes(
     KEY             node_id         ( node_id ),
     CONSTRAINT      Partition_Nodes_ibfk_1 FOREIGN KEY (partition_id) REFERENCES Partitions (partition_id) ON DELETE CASCADE,
     CONSTRAINT      Partition_Nodes_ibfk_2 FOREIGN KEY (node_id) REFERENCES Nodes (id) ON DELETE CASCADE
-)TYPE=INNODB;
+)ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 INSERT INTO Wizard_status VALUES(0,'download_packages','');
 INSERT INTO Wizard_status VALUES(1,'select_packages','');

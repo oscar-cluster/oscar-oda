@@ -62,12 +62,12 @@ install: build
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/oda
 
 	 # Applying some patches on the installed files
-	@echo "Patching the source code";
-	@if [ "$(CODENAME)" = "precise" ]; then \
-		echo "Patching oscar_table.sql..."; \
+	#@echo "Patching the source code";
+	#@if [ "$(CODENAME)" = "precise" ]; then \
+	#	echo "Patching oscar_table.sql..."; \
 		# This patch is for mysql > 5.5, the syntax changed. :( \
-		cd $(CURDIR)/debian/oda/$(DESTDIR)/usr/share/oscar/prereqs/oda; echo "$(CURDIR)/debian/oda/$(DESTDIR)/usr/share/oscar/prereqs/oda"; patch -p0 < $(CURDIR)/patches/oscar_table.patch; \
-	fi
+	#	cd $(CURDIR)/debian/oda/$(DESTDIR)/usr/share/oscar/prereqs/oda; echo "$(CURDIR)/debian/oda/$(DESTDIR)/usr/share/oscar/prereqs/oda"; patch -p0 < $(CURDIR)/patches/oscar_table.patch; \
+	#fi
 
 
 # Build architecture-independent files here.

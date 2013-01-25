@@ -2294,6 +2294,7 @@ sub set_node_with_group {
             return 0;
         }
     } else {
+	# This function is inapropriate for node info update (cpu count info)
         print "The node $node is already in the database\n";
     }
     return 1;
@@ -2857,7 +2858,7 @@ sub start_database_service {
 # Create database tables.                                                      #
 # Creation of OSCAR tables is not done through the config.xml of oda package   #
 # any more. The table information of all the OSCAR database tables is defined  #
-# at $ENV{OSCAR_HOME}/share/prereqs/oda/oscar_table.sql.                       #
+# at /usr/share/oscar/prereqs/oda/etc/oscar_table.sql
 # Database_generic::create_table creates all the tables with the above sql     #
 # file. If oda tables already exist, just skip the creation of tables.         #
 #                                                                              #

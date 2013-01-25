@@ -359,11 +359,13 @@ sub create_table ($$) {
     my ($options_ref, $error_strings_ref) = @_;
 
     my $sql_dir;
-    if (defined $ENV{OSCAR_HOME}) {
-        $sql_dir = "$ENV{OSCAR_HOME}/packages/oda/scripts";
-    } else {
-        $sql_dir = "/usr/share/oscar/prereqs/oda/etc";
-    }
+# OL: $ENV{OSCAR_HOME}/packages/oda/scripts is an obsolete PATH
+# /usr/share/oscar/prereqs/oda/scripts seems to be the replacement
+#    if (defined $ENV{OSCAR_HOME}) {
+#        $sql_dir = "$ENV{OSCAR_HOME}/packages/oda/scripts";
+#    } else {
+    $sql_dir = "/usr/share/oscar/prereqs/oda/etc";
+#    }
     my $sql_file = "$sql_dir/oscar_table.sql";
 
     print "DB_DEBUG>$0:\n".
