@@ -9,11 +9,11 @@
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
 
-# The Linux distribution codename is used to know if patches must
+# The version of mysql-server is used to know if patches must
 # be applied or not. This is clearly not a nice solution but it does
 # the job
-CODENAME := $(shell lsb_release -c | sed 's/Codename:\t//')
-
+MYSQL_VERSION := $(shell apt-cache show mysql-server | grep Version: | tail -1 | sed 's/Version: //' | sed 's/\(-..\).*//g' | cut -f1 -d.)
+MYSQL_GT_5 := $(shell [ $(MYSQL_VERSION) -ge 5 ] && echo true)
 
 CFLAGS = -Wall -g
 
@@ -62,12 +62,12 @@ install: build
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/oda
 
 	 # Applying some patches on the installed files
-	#@echo "Patching the source code";
-	#@if [ "$(CODENAME)" = "precise" ]; then \
-	#	echo "Patching oscar_table.sql..."; \
-		# This patch is for mysql > 5.5, the syntax changed. :( \
-	#	cd $(CURDIR)/debian/oda/$(DESTDIR)/usr/share/oscar/prereqs/oda; echo "$(CURDIR)/debian/oda/$(DESTDIR)/usr/share/oscar/prereqs/oda"; patch -p0 < $(CURDIR)/patches/oscar_table.patch; \
-	#fi
+	@echo "Patching the source code (mysql version is $(MYSQL_VERSION))";
+	@if [ $(MYSQL_GT_5) != "true" ]; then \
+		echo "Patching oscar_table.sql..."; \
+		# This patch is for some old version of mysql \
+		cd $(CURDIR)/debian/oda/$(DESTDIR)/usr/share/oscar/prereqs/oda; echo "$(CURDIR)/debian/oda/$(DESTDIR)/usr/share/oscar/prereqs/oda"; patch -p0 < $(CURDIR)/patches/oscar_table.patch; \
+	fi
 
 
 # Build architecture-independent files here.

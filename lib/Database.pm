@@ -410,7 +410,7 @@ sub get_nics_info_with_node {
     my $sql ="SELECT Nics.* FROM Nics, Nodes ".
              "WHERE Nodes.id=Nics.node_id AND Nodes.name='$node'";
     print "DB_DEBUG>$0:\n====> in Database::get_nics_info_with_node SQL : $sql\n" if $$options_ref{debug};
-    return do_select($sql,$results, $options_ref, $error_strings_ref);
+    return do_select($sql, $results, $options_ref, $error_strings_ref);
 }
 
 ################################################################################

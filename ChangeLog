@@ -1,12 +1,8 @@
 1.4.17 (not yet released):
-- Upgraded oscar_database.sql TYPE => ENGINE. Tested with very old database
-  on CentOS-4 (mysql-4.1.22-2.el4) and it works. The new syntax is supported
-  since a long long time (http://bugs.mysql.com/bug.php?id=17501) and should
-  work on all oscar version including older ones. (Thus reverted the patch
-  below and the migration to the new syntax)
-- Include a patch for oscar_table.sql for mysql >= 5.5.
+- Upgraded oscar_database.sql TYPE => ENGINE. On Debian system with a MySQL
+version that is not 5 or newer, we patch the file to keep the old syntax.
 - Apply the oscar_table.sql patch automatically when creating the Debian
-package on Ubuntu precise.
+package on older Debian based distributions.
 - Updated /usr/share/oscar/prereqs/oda/etc/oscar_table.sql for gpu support
 - Align man location to prefix location (no more /usr/local when prefix=/usr)
 - Update spec: make use of rpm macros paths.
