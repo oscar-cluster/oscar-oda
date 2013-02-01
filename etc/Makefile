@@ -3,7 +3,7 @@ DESTDIR=
 TOPDIR=..
 include $(TOPDIR)/Config.mk
 
-FILES := mysql.cfg pgsql.cfg oscar_table.sql
+FILES := mysql.cfg pgsql.cfg oscar_table.sql Migration_AddGpuSupport.sh
 SUBDIRS :=
 
 all:
