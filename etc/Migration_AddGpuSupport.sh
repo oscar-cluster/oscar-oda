@@ -27,8 +27,14 @@
 #  Copyright (c) 2012   CEA²
 #                       All rights reserved.
 
-if test -z "$(echo 'DESC Nodes;' |mysql -u root oscar|grep gpu_num)"
+if mysql oscar >/dev/null 2>&1 </dev/null
 then
-	echo "ALTER TABLE Nodes ADD COLUMN gpu_num int(11) AFTER cpu_num;"|mysql -u root oscar
+	if test -z "$(echo 'DESC Nodes;' |mysql -u root oscar|grep gpu_num)"
+	then
+		echo "ALTER TABLE Nodes ADD COLUMN gpu_num int(11) AFTER cpu_num;"|mysql -u root oscar
+	fi
+else
+	echo "oda: OSCAR database not available: Assuming fresh install."
+	echo "oda: If it is not the case, please start the database manually and"
+	echo "oda: run /usr/share/oscar/prereqs/oda/etc/Migration_AddGpuSupport.sh"
 fi
-
