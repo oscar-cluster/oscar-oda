@@ -1,7 +1,7 @@
 Summary:        OSCAR DatabAse.
 Name:           oda
-Version:        1.4.16
-Release:        3
+Version:        1.4.17
+Release:        0.1
 Vendor:         Open Cluster Group <http://OSCAR.OpenClusterGroup.org/>
 Distribution:   OSCAR
 Packager:       Olivier Lahaye <olivier.lahaye@cea.fr>
@@ -43,6 +43,8 @@ Set of scripts and Perl modules for the management of the OSCAR database.
 %{_datadir}/oscar/prereqs/oda/etc/Migration_AddGpuSupport.sh
 
 %changelog
+* Tue Mar 05 2013 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.17-0.1
+- New upstream beta version.
 * Fri Feb 22 2013 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.16-3
 - Fixed postinstall script on fresh installs (no database)
 * Fri Feb  1 2013 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.16-2
