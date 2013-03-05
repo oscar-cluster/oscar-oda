@@ -6,6 +6,8 @@ package on older Debian based distributions.
 - Updated /usr/share/oscar/prereqs/oda/etc/oscar_table.sql for gpu support
 - Align man location to prefix location (no more /usr/local when prefix=/usr)
 - Update spec: make use of rpm macros paths.
+- Moved print_error_strings from Database.pm to OSCAR::Utils
+- Used OSCAR::Utils::trim instead of local Database.pm version
 
 1.4.16:
 - Automatically detect the source directory on RPM based systems (patch from
