@@ -73,7 +73,7 @@ use OSCAR::PackagePath;
 use OSCAR::Database_generic;
 use OSCAR::oda;
 use OSCAR::Distro;
-use OSCAR::Utils qw (print_array);
+use OSCAR::Utils;
 use OSCAR::Logger;
 use OSCAR::ConfigManager;
 use OSCAR::ODA_Defs;
@@ -1299,7 +1299,7 @@ sub insert_packages ($$$$$) {
             $key = ( $key eq "__class"?"class":$key);
             my $value;
             $value = ($passed_ref->{$key} ?
-                trimwhitespace($passed_ref->{$key}) : "");
+                trim($passed_ref->{$key}) : "");
             $value =~ s#'#\\'#g;
             $sql_values .= "$comma '$value'";
         }
@@ -1814,7 +1814,7 @@ sub update_packages ($$$$$$) {
             $key = ( $key eq "__group"?"group":$key);
             $key = ( $key eq "__class"?"class":$key);
             my $value;
-        $value = ($passed_ref->{$key}?trimwhitespace($passed_ref->{$key}):""); 
+        $value = ($passed_ref->{$key}?trim($passed_ref->{$key}):""); 
         $value =~ s#'#\\'#g;
         $sql .= "'$value'";
         }
@@ -2449,33 +2449,6 @@ sub fake_missing_parameters ($$) {
 
     return ($options_ref, $errors_ref );
 }
-
-# TODO: that should be in Utils
-sub print_error_strings {
-    my $passed_errors_ref = shift;
-    my @error_strings = ();
-    my $errors_ref = ( defined $passed_errors_ref && 
-                  ref($passed_errors_ref) eq "ARRAY" ) ?
-                  $passed_errors_ref : \@error_strings;
-
-    if ( defined $passed_errors_ref &&
-     ! ref($passed_errors_ref) &&
-     $passed_errors_ref ) {
-        warn shift @$errors_ref while @$errors_ref;
-    }
-    $errors_ref = \@error_strings;
-}
-
-# TODO: that should be in Utils
-sub trimwhitespace($)
-{
-    my $string = shift;
-    $string =~ s/^\s+//;
-    $string =~ s/\s+$//;
-    return $string;
-}
-
-
 
 ######################################################################
 #
