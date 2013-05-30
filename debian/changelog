@@ -1,3 +1,9 @@
+oda (1.4.17-1) precise; urgency=low
+
+  * New upstream version.
+
+ -- Olivier Lahaye <olivier.lahaye@cea.fr>  Thu, 30 May 2013 15:57:48 +0100
+
 oda (1.4.16-2) precise; urgency=low
 
   * Make sure we apply a patch to etc/oscar_table.sql on Ubuntu precise, otherwise we end up with a syntax not compatible with the mysql version.

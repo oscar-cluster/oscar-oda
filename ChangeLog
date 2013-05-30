@@ -1,4 +1,5 @@
-1.4.17 (not yet released):
+1.4.17:
+- Moved print_error_strings from Database.pm to Utils.pm (in oscar-base-lib)
 - Upgraded oscar_database.sql TYPE => ENGINE. On Debian system with a MySQL
 version that is not 5 or newer, we patch the file to keep the old syntax.
 - Apply the oscar_table.sql patch automatically when creating the Debian
