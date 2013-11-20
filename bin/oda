@@ -56,7 +56,7 @@ my @simple_commands = ( "dump",                                      #
                         "list_fields",                               #
                         "list_tables",                               #
                         "reset_password",                            #
-                        "remove_oda",                                 #
+                        "remove_oda",                                #
                         "init"                                       #
                       );                                             #
 #                                                                    #
@@ -164,24 +164,6 @@ sub check_yes_or_no ($) {
     return $answer;
 }
 
-# Return: 1 if success, 0 else.
-sub list_oda_database ($$$$) {
-    my ($command, $arguments, $options_ref, $error_strings) = @_;
-    my $success;
-    my @result_strings;
-
-    if ( @$arguments ) {
-        push (@$error_strings, "No other arguments allowed with $command");
-        return 0;
-    } else {
-        my @databases;
-        oda::list_databases( $options_ref, \@databases, $error_strings );
-        my @result_strings = sort @databases if $success;
-    }
-
-    return @result_strings;
-}
-
 sub get_dump_dir ($) {
     my ($db_type) = @_;
     my $dump_dir;
@@ -240,7 +222,7 @@ sub remove_oda_database ($$$$) {
 
     if ( $answer eq "Y" ){
         OSCAR::oda::oda_disconnect($options_ref, undef);
-        if (!oda::remove_oda($options_ref, $error_strings )) {
+        if (!OSCAR::oda::remove_oda($options_ref, $error_strings )) {
             carp "ERROR: Impossible to remove ODA";
             return -1;
         }
@@ -272,13 +254,39 @@ sub drop_oda_database ($$$$) {
     my $msg = "Do you really  want to remove oda (y/n)? ";
     my $answer = check_yes_or_no($msg);
     if ( $answer eq "Y" ){
-        if (!oda::drop_database($options_ref, $error_strings)) {
+        if (!OSCAR::oda::drop_database($options_ref, $error_strings)) {
             carp "ERROR: Impossible to drop the database";
             return -1;
         }
     }
 
     return 0;
+}
+
+# Return: 0 if success, -1 else.
+sub list_oda_databases ($$$$) {
+    my ($command, $arguments, $options_ref, $error_strings) = @_;
+    my @result_strings;
+
+    if (@$arguments) {
+        push (@$error_strings, "ERROR: No other arguments allowed with $command");
+        return -1;
+    }
+
+    if (!exist_oscar_database( $options_ref, $error_strings )) {
+        print "The OSCAR database does not exist\n";
+        print "Please restore a dump file or create a new oscar database\n";
+    }
+
+    my %databases;
+    my $success = OSCAR::oda::list_databases( $options_ref, \%databases, $error_strings );
+    #print Dumper(\%databases);
+    #if ( defined $all_database_names_ref ) {
+    #    @result_strings = sort keys %$all_database_names_ref;
+    #}
+    @result_strings = sort keys %databases if $success;
+
+    return @result_strings;
 }
 
 # Return: 0 if success, -1 else.
@@ -296,7 +304,7 @@ sub list_oda_tables ($$$$) {
         print "Please restore a dump file or create a new oscar database\n";
     }
 
-    my $all_table_names_ref = oda::list_tables( $options_ref, $error_strings );
+    my $all_table_names_ref = OSCAR::oda::list_tables( $options_ref, $error_strings );
     if ( defined $all_table_names_ref ) {
         @result_strings = sort keys %$all_table_names_ref;
     }
@@ -331,7 +339,7 @@ sub list_oda_fields ($$$$) {
         print "Here is the list of the OSCAR tables:\n";
         print "====================================\n";
         my @tables = ();
-        my $all_table_names = oda::list_tables( $options_ref, $error_strings );
+        my $all_table_names = OSCAR::oda::list_tables( $options_ref, $error_strings );
         @tables = sort keys %$all_table_names if ( defined $all_table_names );
         foreach my $table (@tables){
             print "$table\n";
@@ -353,7 +361,7 @@ sub list_oda_fields ($$$$) {
         return undef;
     } else {
         my %fields;
-        if (oda::list_fields($options_ref, $table_name, \%fields, @$error_strings )) {
+        if (OSCAR::oda::list_fields($options_ref, $table_name, \%fields, @$error_strings )) {
             @result_strings = sort keys %fields;
         } else {
             carp "ERROR: Impossible to get the list of the fields";
@@ -368,6 +376,7 @@ sub dump_oda_database ($$$$$) {
     my ($command, $arguments, $dump_dir, $options_ref, $error_strings) = @_;
     my $dump_file;
 
+    system("mkdir -p $dump_dir") if !-d $dump_dir;
     # If the user specify a directory where to dump the database, it overwrites
     # the default directory.
     if (@$arguments) {
@@ -409,7 +418,7 @@ sub dump_oda_database ($$$$$) {
         return -1;
     }
 
-    if (oda::do_shell_command( $options_ref, $sh_cmd, $error_strings )) {
+    if (OSCAR::oda::do_shell_command( $options_ref, $sh_cmd, $error_strings ) != 1) {
         carp "ERROR: Impossible to execute $sh_cmd";
         return -1;
     }
@@ -513,10 +522,10 @@ sub restore_oda_database ($$$$$) {
         $msg = "Do you want to proceed (y/n)? ";
         $answer = check_yes_or_no($msg);
     } else {
-        oda::create_database( $options_ref, $error_strings);
+        OSCAR::oda::create_database( $options_ref, $error_strings);
     }
 
-    oda::do_shell_command( $options_ref, $sh_cmd, $error_strings ) if $answer eq "Y";
+    OSCAR::oda::do_shell_command( $options_ref, $sh_cmd, $error_strings ) if $answer eq "Y";
 
     return 0;
 }
@@ -589,7 +598,7 @@ sub reset_oda_password ($$$$) {
     $msg = "Do you really want to reset your ODA password (y/n)? ";
     $answer = check_yes_or_no($msg);
     if ($answer eq "Y"){
-        my $status = oda::reset_password($options_ref, $error_strings);
+        my $status = OSCAR::oda::reset_password($options_ref, $error_strings);
         my $file = "$odapw_file.bak";
         unlink ($file) or (carp "ERROR: Impossible to remove $file", return -1);
 
@@ -668,7 +677,8 @@ sub execute_simple_command ($$) {
 
     print "$command\n" if $$options_ref{debug};
     if ( $command eq "list_databases" ) {
-        list_oda_databases ($command, \@arguments, $options_ref, \@error_strings);
+        @result_strings = list_oda_databases ($command, \@arguments, $options_ref, \@error_strings);
+        display_cmd_result (\@result_strings, \@error_strings);
     } elsif ( $command eq "create_database" ) {
         if(@arguments){
             push (@error_strings,
@@ -731,7 +741,7 @@ sub execute_simple_command ($$) {
         my %table_fields = ();
         foreach my $table (keys %shortcuts){
             my %fields = ();
-             oda::list_fields($options_ref,$table,\%fields,\@error_strings);
+             OSCAR::oda::list_fields($options_ref,$table,\%fields,\@error_strings);
             $table_fields{$table} = \%fields;
         }
 
@@ -749,7 +759,7 @@ sub execute_simple_command ($$) {
         }
     }
 
-    oda::oda_disconnect($options_ref, undef) if $disconnect_flag;
+    OSCAR::oda::oda_disconnect($options_ref, undef) if $disconnect_flag;
 
     return (@error_strings);
 }
