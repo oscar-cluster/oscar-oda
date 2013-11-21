@@ -40,6 +40,7 @@ use Pod::Usage;
 use Data::Dumper;
 use Term::Complete;
 use OSCAR::Utils;
+use OSCAR::Database_generic;
 use File::Basename;
 use Carp;
 use warnings "all";
