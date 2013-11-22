@@ -1,4 +1,10 @@
-oda (1.4.17-1) precise; urgency=low
+oda (1.4.18-1) precise; urgency=low
+
+  * New upstream version.
+
+ -- Olivier Lahaye <olivier.lahaye@cea.fr>  Fri, 22 Nov 2013 10:58:48 +0100
+
+ooda (1.4.17-1) precise; urgency=low
 
   * New upstream version.
 

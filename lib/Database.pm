@@ -2801,22 +2801,22 @@ sub start_database_service {
         return -1;
     }
 
-    my $daemon = $db_type."_daemon";
-    if (!OSCAR::Utils::is_a_valid_string($daemon)) {
+    my $service = $db_type."_service";
+    if (!OSCAR::Utils::is_a_valid_string($service)) {
         carp "ERROR: [$0] Unknown DB_TYPE=".$db_type."\n".
         return -1;
     }
-    my $db_daemon = OSCAR::OCA::OS_Settings::getitem($daemon);
-    if (enable_system_services($db_daemon)) {
+    my $db_service = OSCAR::OCA::OS_Settings::getitem($service);
+    if (enable_system_services($db_service)) {
         # It's not an dramatic error if we are still able to start the DB.
         # (so no return)
         print "WARNING: [$0] start_database_service: Unable to enable ".
-              $db_daemon." service at each boot.\n";
+              $db_service." service at each boot.\n";
     }
     # Start the database service.
     if (system_service($db_type, OSCAR::SystemServicesDefs::START())) {
         carp "ERROR: [$0] start_database_service: Unable to start ".
-             $db_daemon." service.";
+             $db_service." service.";
         return -1;
     } 
 

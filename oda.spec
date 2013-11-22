@@ -1,6 +1,6 @@
 Summary:        OSCAR DatabAse.
 Name:           oda
-Version:        1.4.17
+Version:        1.4.18
 Release:        1
 Vendor:         Open Cluster Group <http://OSCAR.OpenClusterGroup.org/>
 Distribution:   OSCAR
@@ -11,7 +11,7 @@ Source:         %{name}.tar.gz
 BuildRoot:      %{_localstatedir}/tmp/%{name}-root
 BuildArch:      noarch
 AutoReqProv:    no
-Requires:       oscar-base-lib > 6.1.2r9937
+Requires:       oscar-base-lib > 6.1.2r10150
 Requires:       orm
 
 %description
@@ -43,6 +43,9 @@ Set of scripts and Perl modules for the management of the OSCAR database.
 %{_datadir}/oscar/prereqs/oda/etc/Migration_AddGpuSupport.sh
 
 %changelog
+* Fri Nov 22 2013 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.18-1
+- New upstream version. (Migrated to new SystemServices API)
+- Updated requires (oscar-base-libs) now needs V6.1.2r10150
 * Tue Mar 05 2013 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.17-1
 - New upstream version.
 - Updated requires (oscar-base-libs) now needs V6.1.2r9937
