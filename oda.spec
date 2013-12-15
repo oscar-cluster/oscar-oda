@@ -1,7 +1,7 @@
 Summary:        OSCAR DatabAse.
 Name:           oda
 Version:        1.4.18
-Release:        1
+Release:        2
 Vendor:         Open Cluster Group <http://OSCAR.OpenClusterGroup.org/>
 Distribution:   OSCAR
 Packager:       Olivier Lahaye <olivier.lahaye@cea.fr>
@@ -10,7 +10,7 @@ Group:          Development/Libraries
 Source:         %{name}.tar.gz
 BuildRoot:      %{_localstatedir}/tmp/%{name}-root
 BuildArch:      noarch
-AutoReqProv:    no
+#AutoReqProv:    no
 Requires:       oscar-base-lib > 6.1.2r10150
 Requires:       orm
 
