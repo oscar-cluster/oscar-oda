@@ -325,7 +325,11 @@ populate_oda_packages_table <OPTIONS>
 
 =head1 AUTHOR
 
+=over
+
 =item Erich Focht <efocht@hpce.nec.com>
+
+=back
 
 =head1 SEE ALSO
 

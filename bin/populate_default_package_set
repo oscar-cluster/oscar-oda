@@ -227,6 +227,8 @@ Display even more information (set OSCAR_VERBOSE to 10).
 
 =head1 AUTHORS
 
+=over
+
 =item Neil Gorsuch <ngorsuch@ncsa.uiuc.edu>
 
 =item Bernard Li <bli@bcgsc.ca>
@@ -234,6 +236,8 @@ Display even more information (set OSCAR_VERBOSE to 10).
 =item Indiana University
 
 =item Geoffroy Vallee <valleegr at ornl dot gov>
+
+=back
 
 =head1 SEE ALSO
 

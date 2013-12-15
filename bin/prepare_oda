@@ -218,6 +218,8 @@ prepare_oda <OPTIONS>
 
 =head1 AUTHORS
 
+=over
+
 =item Neil Gorsuch <ngorsuch@ncsa.uiuc.edu>
 
 =item Benoit des Ligneris <bdesligneris@revolutionlinux.com>
@@ -229,6 +231,8 @@ prepare_oda <OPTIONS>
 =item Erich Focht <efocht@hpce.nec.com>
 
 =item Geoffroy Vallee <valleegr@ornl.gov>
+
+=back
 
 =head1 SEE ALSO
 
