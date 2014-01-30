@@ -20,6 +20,7 @@ use Carp;
 use lib "$ENV{OSCAR_HOME}/lib";
 use OSCAR::ConfigFile;
 use OSCAR::Logger;
+use OSCAR::LoggerDefs;
 use OSCAR::PackagePath;
 use File::Copy;
 use OSCAR::OCA::OS_Settings;
@@ -43,11 +44,11 @@ my $oda_cmd = "$binaries_path/oda";
 my $chk = "new";
 
 # Default database is MySQL.
-my $database = OSCAR::OCA::OS_Settings::getitem(MYSQL());
+my $database = MYSQL();
 
 # Reconfigure PostgreSQL
-if ($db_type eq "pgsql"){
-    $database = OSCAR::OCA::OS_Settings::getitem(POSTGRESQL());
+if ($db_type eq "pgsql") {
+    $database = POSTGRESQL();
     my $PG_DATA_DIR = OSCAR::OCA::OS_Settings::getitem("postgresql_datadir");
     my $pg_conf = "$PG_DATA_DIR/pg_hba.conf";
     my $postgresql_conf = "$PG_DATA_DIR/postgresql.conf";
@@ -86,63 +87,62 @@ if ($db_type eq "pgsql"){
         # FIXME: Ol: Check this works on all distros.
         system("chown postgres:postgres $pg_conf $postgresql_conf");
     }
-    goto RESTART_DATABASE;
-}
+} elsif ($db_type eq "mysql") {
+    # Reconfigure MySQL
 
+    # FIXME: OL: mandriva not supported. need to check if code below still needed.
+    #goto RESTART_DATABASE
+    #    if($os->{'distro'} eq "mandriva");
 
-# Reconfigure MySQL
+    # Set up the InnoDB type to the oscar database tables.
+    # 
+    # This script needs to run for MySQL 3.28 ( < 4.0 ).
+    #my $mysql_conf = OSCAR::OCA::OS_Settings::getitem(MYSQL()."_datadir");
+    my $mysql_conf = OSCAR::OCA::OS_Settings::getitem(MYSQL()."_configfile");
+    my $innodb_conf = "innodb_data_file_path=ibdata1:10M:autoextend";
+    my $innodb_flag = 0;
 
-# FIXME: OL: mandriva not supported. need to check if code below still needed.
-#goto RESTART_DATABASE
-#    if($os->{'distro'} eq "mandriva");
-
-# Set up the InnoDB type to the oscar database tables.
-# 
-# This script needs to run for MySQL 3.28 ( < 4.0 ).
-my $mysql_conf = OSCAR::OCA::OS_Settings::getitem(MYSQL()."_datadir");
-my $innodb_conf = "innodb_data_file_path=ibdata1:10M:autoextend";
-my $innodb_flag = 0;
-
-# Check to see if the my.conf is already setup for InnoDB
-open DB_CONF, "$mysql_conf" or die "Can not open $mysql_conf file";
-while(my $line = <DB_CONF>){
-    chomp($line);
-    if( $line =~ m/$innodb_conf/ ){
-        print "This mysql has been already setup InnoDB table type\n";
-        $innodb_flag = 1;
-        last;
-    }
-}
-close DB_CONF;
-
-# If my.cnf is not setup for InnoDB, configure it so
-if(! $innodb_flag ){
-    # 1st, create a backup of the config file if not already done.
-    backup_file_if_not_exist($mysql_conf) or die "ERROR: Cannot backup $mysql_conf";
-    open NEW_DB_CONF, ">$mysql_conf.$$"
-        or die "Can not create a copy file $mysql_conf.bak";
-    open DB_CONF, "$mysql_conf"
-        or die "Can not open $mysql_conf file";
-    my $flag = 0;
+    # Check to see if the my.conf is already setup for InnoDB
+    open DB_CONF, "$mysql_conf" or die "Can not open $mysql_conf file";
     while(my $line = <DB_CONF>){
         chomp($line);
-        $flag = 1 if $line =~ /\[mysqld\]/;
-        if ($line =~ /^(\s*)$/ && $flag) {
-            $line =~ s/$1/$innodb_conf\n/g;
-            $flag = 0;
-        }    
-        print NEW_DB_CONF "$line\n";
+        if( $line =~ m/$innodb_conf/ ){
+            print "This mysql has been already setup InnoDB table type\n";
+            $innodb_flag = 1;
+            last;
+        }
     }
     close DB_CONF;
-    close NEW_DB_CONF;
 
-    # COPY NEW_DB_CONF TO THE ORIGINAL
-    copy("$mysql_conf.$$", $mysql_conf);
-    # REMOVE NEW_DB_CONF
-    unlink "$mysql_conf.$$";
-}    
+    # If my.cnf is not setup for InnoDB, configure it so
+    if(! $innodb_flag ){
+        # 1st, create a backup of the config file if not already done.
+        backup_file_if_not_exist($mysql_conf) or die "ERROR: Cannot backup $mysql_conf";
+        open NEW_DB_CONF, ">$mysql_conf.$$"
+            or die "Can not create a copy file $mysql_conf.bak";
+        open DB_CONF, "$mysql_conf"
+            or die "Can not open $mysql_conf file";
+        my $flag = 0;
+        while(my $line = <DB_CONF>){
+            chomp($line);
+            $flag = 1 if $line =~ /\[mysqld\]/;
+            if ($line =~ /^(\s*)$/ && $flag) {
+                $line =~ s/$1/$innodb_conf\n/g;
+                $flag = 0;
+            }
+            print NEW_DB_CONF "$line\n";
+        }
+        close DB_CONF;
+        close NEW_DB_CONF;
 
- RESTART_DATABASE:
+        # COPY NEW_DB_CONF TO THE ORIGINAL
+        copy("$mysql_conf.$$", $mysql_conf);
+        # REMOVE NEW_DB_CONF
+        unlink "$mysql_conf.$$";
+    }
+} else {
+    die "Unsupported database type: $db_type";
+}
 
 # Reload the database if it is running. Otherwise, just start it.
 if ( system_service($database,STATUS()) == STARTED() ) {
@@ -152,9 +152,9 @@ if ( system_service($database,STATUS()) == STARTED() ) {
     $chk = "old";
     $ENV{OSCAR_DB} = "$db_type:$chk";
 } else {
-    oscar_log_subsection("$database daemon was not running and will start");
+    oscar_log(1, INFO, "$database daemon was not running and will start");
     !system_service($database,START())
-        or die "ERROR: Couldn't start $database server.";
+        or (oscar_log(1, ERROR, "Failed to restart database service"), exit 1);
 }
 
 exit(0);
