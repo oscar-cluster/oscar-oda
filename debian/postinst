@@ -1,0 +1,21 @@
+#!/bin/bash
+# If install successfull, then migrate the database.
+# Don't know to be 100% safe here. In pre, the migration can succeed but
+# installation can fail. in post, installation can succeed, but migration
+# can fail. In either pre or post, I don't know how to revert in coherent
+# situation. (not skilled enought).
+
+# Use same rpmlib variables so it's easy to update postinst scripts.
+perl_vendorlib=$(perl -V:vendorarch|cut -d"'" -f2)
+_datarootdir=/usr/share/oscar
+
+# Aupdate database.
+${_datarootdir}/oscar/prereqs/oda/etc/Migration_AddGpuSupport.sh
+
+# Set mysql.pm as default backend to ODA is none is set.
+if ! test -l %{perl_vendorlib}/OSCAR/ODA/oda.pm
+then
+    echo "No ODA backend. Setting ODA backend to mysql."
+    (cd ${perl_vendorlib}/OSCAR/ODA; ln -s mysql.pm oda.pm)
+fi
+
