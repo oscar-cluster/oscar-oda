@@ -41,7 +41,7 @@ Set of scripts and Perl modules for the management of the OSCAR database.
 # can fail. In either pre or post, I don't know how to revert in coherent
 # situation. (not skilled enought).
 %{_datarootdir}/oscar/prereqs/oda/etc/Migration_AddGpuSupport.sh
-if ! test -l %{perl_vendorlib}/OSCAR/ODA/oda.pm
+if ! test -L %{perl_vendorlib}/OSCAR/ODA/oda.pm
 then
     echo "No ODA backend. Setting ODA backend to mysql."
     (cd %{perl_vendorlib}/OSCAR/ODA; ln -s mysql.pm oda.pm)
