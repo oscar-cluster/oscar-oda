@@ -48,7 +48,7 @@ then
 fi
 
 %changelog
-* Tue Jul 15 2013 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.19-1
+* Tue Jul 15 2014 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.19-1
 - Now mysql.pm is used by default for oda.pm
 * Fri Nov 22 2013 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.18-1
 - New upstream version. (Migrated to new SystemServices API)
