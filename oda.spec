@@ -1,7 +1,7 @@
 Summary:        OSCAR DatabAse.
 Name:           oda
-Version:        1.4.18
-Release:        2%{?dist}
+Version:        1.4.19
+Release:        1%{?dist}
 Vendor:         Open Cluster Group <http://OSCAR.OpenClusterGroup.org/>
 Distribution:   OSCAR
 Packager:       Olivier Lahaye <olivier.lahaye@cea.fr>
@@ -25,13 +25,13 @@ Set of scripts and Perl modules for the management of the OSCAR database.
 %install 
 %__make install DESTDIR=$RPM_BUILD_ROOT
 # Make sure postinstall is executable
-%__chmod +x $RPM_BUILD_ROOT/%{_datadir}/oscar/prereqs/oda/etc/Migration_AddGpuSupport.sh
+%__chmod +x $RPM_BUILD_ROOT/%{_datarootdir}/oscar/prereqs/oda/etc/Migration_AddGpuSupport.sh
 
 %files
 %defattr(-,root,root)
 %{_bindir}/*
 %{perl_vendorlib}/*
-%{_datadir}/oscar/prereqs/oda/*
+%{_datarootdir}/oscar/prereqs/oda/*
 %{_mandir}/man1/*
 
 %post
@@ -40,9 +40,16 @@ Set of scripts and Perl modules for the management of the OSCAR database.
 # installation can fail. in post, installation can succeed, but migration
 # can fail. In either pre or post, I don't know how to revert in coherent
 # situation. (not skilled enought).
-%{_datadir}/oscar/prereqs/oda/etc/Migration_AddGpuSupport.sh
+%{_datarootdir}/oscar/prereqs/oda/etc/Migration_AddGpuSupport.sh
+if ! test -l %{perl_vendorlib}/OSCAR/ODA/oda.pm
+then
+    echo "No ODA backend. Setting ODA backend to mysql."
+    (cd %{perl_vendorlib}/OSCAR/ODA; ln -s mysql.pm oda.pm)
+fi
 
 %changelog
+* Tue Jul 15 2013 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.19-1
+- Now mysql.pm is used by default for oda.pm
 * Fri Nov 22 2013 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.18-1
 - New upstream version. (Migrated to new SystemServices API)
 - Updated requires (oscar-base-libs) now needs V6.1.2r10150
