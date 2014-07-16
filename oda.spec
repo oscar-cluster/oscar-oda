@@ -1,7 +1,7 @@
 Summary:        OSCAR DatabAse.
 Name:           oda
 Version:        1.4.19
-Release:        1%{?dist}
+Release:        2%{?dist}
 Vendor:         Open Cluster Group <http://OSCAR.OpenClusterGroup.org/>
 Distribution:   OSCAR
 Packager:       Olivier Lahaye <olivier.lahaye@cea.fr>
@@ -41,13 +41,15 @@ Set of scripts and Perl modules for the management of the OSCAR database.
 # can fail. In either pre or post, I don't know how to revert in coherent
 # situation. (not skilled enought).
 %{_datarootdir}/oscar/prereqs/oda/etc/Migration_AddGpuSupport.sh
-if ! test -L %{perl_vendorlib}/OSCAR/ODA/oda.pm
+if ! test -L %{perl_vendorlib}/OSCAR/oda.pm
 then
     echo "No ODA backend. Setting ODA backend to mysql."
-    (cd %{perl_vendorlib}/OSCAR/ODA; ln -s mysql.pm oda.pm)
+    (cd %{perl_vendorlib}/OSCAR; ln -s ODA/mysql.pm oda.pm)
 fi
 
 %changelog
+* Wed Jul 16 2014 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.19-2
+- Fix link creation in postinstall.
 * Tue Jul 15 2014 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.19-1
 - Now mysql.pm is used by default for oda.pm
 * Fri Nov 22 2013 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.18-1
