@@ -75,6 +75,7 @@ use OSCAR::oda;
 use OSCAR::Distro;
 use OSCAR::Utils;
 use OSCAR::Logger;
+use OSCAR::LoggerDefs;
 use OSCAR::ConfigManager;
 use OSCAR::ODA_Defs;
 use OSCAR::SystemServices;
@@ -909,8 +910,9 @@ sub get_image_info_with_name ($$$) {
     my ($image,
         $options_ref,
         $error_strings_ref) = @_;
-    OSCAR::Logger::oscar_log_subsection "Getting information about the image ".
-        "($image)...";
+    print "DB_DEBUG>$0: Getting information about the image ".
+        "($image)...\n"
+        if $$options_ref{debug} ;
     my $sql = "SELECT * FROM Images WHERE Images.name='$image'";
     print "DB_DEBUG>$0:\n".
           "====> in Database::get_image_info_with_name SQL : $sql\n"
