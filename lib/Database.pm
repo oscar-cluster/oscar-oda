@@ -920,7 +920,8 @@ sub get_image_info_with_name ($$$) {
     my @images = ();
     die "DB_DEBUG>$0:\n====>Failed to query values via << $sql >>"
         if! do_select($sql,\@images, $options_ref, $error_strings_ref);
-    print "Success...\n";
+    print "Success...\n"
+        if $$options_ref{debug} ;
     return (@images?pop @images:undef);
 }
 
