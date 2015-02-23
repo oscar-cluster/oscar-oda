@@ -1,7 +1,7 @@
 Summary:        OSCAR DatabAse.
 Name:           oda
-Version:        1.4.19
-Release:        2%{?dist}
+Version:        1.4.20
+Release:        1%{?dist}
 Vendor:         Open Cluster Group <http://OSCAR.OpenClusterGroup.org/>
 Distribution:   OSCAR
 Packager:       Olivier Lahaye <olivier.lahaye@cea.fr>
@@ -48,6 +48,8 @@ then
 fi
 
 %changelog
+* Mon Feb 23 2015 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.20-1
+- Fix mysql.cfg
 * Wed Jul 16 2014 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.19-2
 - Fix link creation in postinstall.
 * Tue Jul 15 2014 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.19-1
