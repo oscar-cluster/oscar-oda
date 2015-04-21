@@ -92,7 +92,7 @@ my $options_ref = \%options;
 my $database_connected = 0;
 my $CLUSTER_NAME = "oscar";
 my $DEFAULT = "Default";
-my $OSCAR_SERVER = "oscar_server";
+my $OSCAR_SERVER = "oscar-server";
 
 my $verbose = $ENV{OSCAR_VERBOSE};
 
