@@ -31,7 +31,8 @@ use vars qw(@EXPORT);
 use base qw(Exporter);
 use File::Basename;
 use Carp;
-
+use OSCAR::Logger;
+use OSCAR::LoggerDefs;
 
 @EXPORT = qw (
                 init_db
@@ -50,14 +51,13 @@ use Carp;
 sub init_db ($) {
     my $configurator = shift;
     if (!defined ($configurator)) {
-        carp "ERROR: invalid configurator object\n";
+        oscar_log(6, ERROR, "Invalid configurator object.");
         return -1;
     }
     my $config = $configurator->get_config();
     
     require OSCAR::oda;
-    print "Database Initialization...\n";
-    print "Restarting the database service...\n";
+    oscar_log_message(3, INFO, "Database Initialization...");
     require OSCAR::SystemServices;
     require OSCAR::SystemServicesDefs;
     OSCAR::SystemServices::system_service (OSCAR::SystemServicesDefs::MYSQL(),

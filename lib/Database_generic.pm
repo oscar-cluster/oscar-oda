@@ -83,6 +83,8 @@ use Carp;
 use vars qw(@EXPORT $VERSION);
 use base qw(Exporter);
 use OSCAR::PackagePath;
+use OSCAR::Logger;
+use OSCAR::LoggerDefs;
 use OSCAR::oda;
 use OSCAR::Utils;
 use File::Basename;
@@ -95,7 +97,7 @@ my $options_ref = \%options;
 my $database_connected = 0;
 my $CLUSTER_NAME = "oscar";
 my $DEFAULT = "Default";
-my $OSCAR_SERVER = "oscar_server";
+my $OSCAR_SERVER = "oscar-server";
 
 $options{debug} = 1 
     if (exists $ENV{OSCAR_VERBOSE} && $ENV{OSCAR_VERBOSE} == 10)
@@ -140,7 +142,8 @@ sub do_select ($$$$) {
         $error_strings_ref) = @_;
 
     my $debug_msg = ">$0:\n====> in Database::do_select SQL : $sql\n";
-    print "$debug_msg" if $$options_ref{debug} || $$options_ref{verbose};
+#    print "$debug_msg" if $$options_ref{debug} || $$options_ref{verbose};
+    oscar_log(8, DB, ">$0: ODA Query: $sql;");
     if (ref($error_strings_ref) eq "ARRAY") {
         push (@$error_strings_ref, $debug_msg);
     }
@@ -162,7 +165,8 @@ sub do_insert ($$$$){
     my ($sql, $table, $options_ref, $error_strings_ref) = @_;
 
     my $debug_msg = "DB_DEBUG>$0:\n====> in Database::do_insert SQL : $sql\n";
-    print "$debug_msg" if $$options_ref{debug};
+#    print "$debug_msg" if $$options_ref{debug};
+    oscar_log(8, DB, ">$0: ODA Insert: $sql;");
     if (ref($error_strings_ref) eq "ARRAY") {
         push @$error_strings_ref, $debug_msg;
     }
@@ -182,16 +186,17 @@ sub do_update ($$$$) {
 
     # Some sanity checks.
     if (!is_a_valid_string ($sql)) {
-        carp "ERROR: Invalid SQL command";
+        oscar_log(8, DB, "ERROR: Invalid SQL command.");
         return 0;
     }
     if (!is_a_valid_string ($table)) {
-        carp "ERROR: Invalid table name";
+        oscar_log(8, DB, "ERROR: Invalid table name.");
         return 0;
     }
 
     my $debug_msg = "DB_DEBUG>$0:\n====> in Database::do_update SQL : $sql\n";
-    print "$debug_msg" if $$options_ref{debug};
+#    print "$debug_msg" if $$options_ref{debug};
+    oscar_log(8, DB, ">$0: ODA Update: $sql;");
     if (ref($error_strings_ref) eq "ARRAY") {
         push @$error_strings_ref, $debug_msg;
     }
@@ -222,7 +227,7 @@ sub insert_into_table ($$$$) {
     my $comma = "";
     while ( my($field, $value) = each %$field_value_ref ){
         if (!defined $value) {
-            carp "ERROR: Undefined value for key $field";
+            oscar_log(8, DB, "ERROR: Undefined value for key $field");
             return 0;
         }
         $comma = ", " if $flag;
@@ -237,7 +242,8 @@ sub insert_into_table ($$$$) {
     $sql .= ") $sql_values )";
     my $debug_msg = "DB_DEBUG>$0:\n".
         "====> in Database::insert_into_table SQL : $sql\n";
-    print "$debug_msg" if $$options_ref{debug};
+    oscar_log(8, DB, ">$0: ODA Insert: $sql;");
+#    print "$debug_msg" if $$options_ref{debug};
     push @$error_strings_ref, $debug_msg;
 
     my $error_msg = "Failed to insert values to $table table";
@@ -266,7 +272,8 @@ sub delete_table ($$$$) {
     $sql .= " $where ";
 
     my $debug_msg = "DB_DEBUG>$0:\n====> in Database::delete_table SQL: $sql\n";
-    print "$debug_msg" if $$options_ref{debug};
+#    print "$debug_msg" if $$options_ref{debug};
+    oscar_log(8, DB, ">$0: ODA Insert: $sql;");
     if (ref($error_strings_ref) eq "ARRAY") {
         push @$error_strings_ref, $debug_msg;
     }
@@ -299,8 +306,8 @@ sub update_table ($$$$$) {
     $where = $where?$where:"";
     $sql .= " $where ";
     my $debug_msg = "DB_DEBUG>$0:\n====> in Database::update_table SQL: $sql\n";
-    print "$debug_msg" if $$options_ref{debug};
-    print "$debug_msg";
+    oscar_log(8, DB, ">$0: ODA Insert: $sql;");
+    #print "$debug_msg" if $$options_ref{debug};
     push @$error_strings_ref, $debug_msg;
     my $error_msg = "Failed to update values to $table table";
     my $success = OSCAR::oda::do_sql_command($options_ref,
@@ -342,7 +349,8 @@ sub select_table ($$$$$$) {
     }
     $sql .= " FROM $table $where ";
     my $debug_msg = "DB_DEBUG>$0:\n====> in Database::select_table SQL: $sql\n";
-    print "$debug_msg" if $$options_ref{debug};
+    oscar_log(8, DB, ">$0: ODA Insert: $sql;");
+    #print "$debug_msg" if $$options_ref{debug};
     push @$error_strings_ref, $debug_msg;
 
     my $error_msg = "Failed to query values from $table table";
@@ -368,9 +376,11 @@ sub create_table ($$) {
 #    }
     my $sql_file = "$sql_dir/oscar_table.sql";
 
-    print "DB_DEBUG>$0:\n".
-        "====> in Database::create_table uses the SQL statement which are ".
-        "already defined at $sql_file" if $$options_ref{verbose};
+    oscar_log(8, INFO, "in Database::create_table uses the SQL statement which are ".
+                       "already defined at $sql_file");
+    #print "DB_DEBUG>$0:\n".
+    #    "====> in Database::create_table uses the SQL statement which are ".
+    #    "already defined at $sql_file" if $$options_ref{verbose};
 
     my $cmd = "";
     $cmd = "mysql -u $$options_ref{user} -p$$options_ref{password} oscar < $sql_file"
@@ -383,7 +393,7 @@ sub create_table ($$) {
 
     my $debug_msg = "DB_DEBUG>$0:\n".
         "====> in Database::create_table runs the command : $cmd\n";
-    print "$debug_msg" if $$options_ref{debug};
+    #print "$debug_msg" if $$options_ref{debug};
     push @$error_strings_ref, $debug_msg;
 
     my $success = OSCAR::oda::do_shell_command($options_ref, "$cmd", $error_strings_ref);
@@ -422,7 +432,7 @@ sub my2pg ($) {
 sub init_database_passwd ($) {
     my $configurator = shift;
     if (!defined ($configurator)) {
-        print "ERROR: Invalid configurator object.\n";
+        oscar_log(5, ERROR, "Invalid configurator object.");
         return -1;
     }
 
@@ -430,20 +440,20 @@ sub init_database_passwd ($) {
     my $oscarbinaries_path = $config->{'binaries_path'};
 
     # Make sure there is a database password
-    require OSCAR::Logger;
-    OSCAR::Logger::oscar_log_subsection("Making sure there is an ODA database password");
+    oscar_log(3, INFO, "Making sure there is an ODA database password");
     my $cmd;
     if (defined $ENV{OSCAR_HOME}) {
         $cmd = "$ENV{OSCAR_HOME}/scripts/make_database_password";
     } else {
         if (!defined $oscarbinaries_path) {
-            carp "ERROR: impossible to get the location of OSCAR binaries";
+            oscar_log(5, ERROR, "Failed to get the location of OSCAR binaries");
             return -1;
         }
         $cmd = "$oscarbinaries_path/make_database_password";
     }
+    oscar_log(7, ACTION, "About to run: $cmd");
     if (system($cmd)) {
-        carp "ERROR: impossible to execute $cmd";
+        oscar_log(5, ERROR, "Impossible to execute $cmd");
         return -1;
     }
 
