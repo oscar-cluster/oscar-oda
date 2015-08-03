@@ -584,7 +584,7 @@ sub set_option_defaults {
     }
 
     # if the caller didn't specify the database type,
-    # set it to mysql
+    # set it to Pg
     if (!exists $$options_ref{type}) {
         $$options_ref{type} = "Pg";
         print "DB_DEBUG>$0:\n====> in set_option_defaults setting type = $$options_ref{type}\n"

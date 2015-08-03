@@ -501,23 +501,23 @@ sub database_server_version {
 
 sub fake_missing_parameters {
     my ($passed_options_ref,
-	$passed_error_strings_ref) = @_;
+        $passed_error_strings_ref) = @_;
 
     # take care of faking any non-passed input parameters, and
     # set any options to their default values if not already set
 
     my @ignored_error_strings;
     my $error_strings_ref = (defined $passed_error_strings_ref) ? 
-	$passed_error_strings_ref : \@ignored_error_strings;
+        $passed_error_strings_ref : \@ignored_error_strings;
 
     my $options_ref;
     if (defined $passed_options_ref) {
-	$options_ref = $passed_options_ref;
+        $options_ref = $passed_options_ref;
     } else {
-	$options_ref = \%options;
+        $options_ref = \%options;
     }
     set_option_defaults($options_ref)
-	if !$$options_ref{defaulted};
+    if !$$options_ref{defaulted};
 
     return ( $options_ref,
          $error_strings_ref );
@@ -1204,7 +1204,7 @@ sub initialize_locked_tables{
 #         nothing of %options is changed returning 0 if fails.
 
 sub check_root_password{
-    $options{database} = "mysql";
+    $options{database} = "oscar"; # Use "oscar" as name for testing, because otherwise, %options{database} gets populated with wronga db name for future calls.
     $options{host} = "localhost";
     $options{port} = 3306 if ! $options{port};
     my $driver_handle;
