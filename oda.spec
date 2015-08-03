@@ -1,6 +1,6 @@
 Summary:        OSCAR DatabAse.
 Name:           oda
-Version:        1.4.20
+Version:        1.4.21
 Release:        1%{?dist}
 Vendor:         Open Cluster Group <http://OSCAR.OpenClusterGroup.org/>
 Distribution:   OSCAR
