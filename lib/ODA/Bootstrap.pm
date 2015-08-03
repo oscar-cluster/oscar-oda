@@ -57,7 +57,7 @@ sub init_db ($) {
     my $config = $configurator->get_config();
     
     require OSCAR::oda;
-    oscar_log_message(3, INFO, "Database Initialization...");
+    oscar_log(3, INFO, "Database Initialization...");
     require OSCAR::SystemServices;
     require OSCAR::SystemServicesDefs;
     OSCAR::SystemServices::system_service (OSCAR::SystemServicesDefs::MYSQL(),
