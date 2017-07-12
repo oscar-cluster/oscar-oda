@@ -11,7 +11,7 @@ Source:         %{name}.tar.gz
 BuildRoot:      %{_localstatedir}/tmp/%{name}-root
 BuildArch:      noarch
 #AutoReqProv:    no
-Requires:       oscar-base-lib > 6.1.2r10150
+Requires:       oscar-base-lib > 6.1.2r7005
 Requires:       orm
 
 %description
@@ -48,6 +48,8 @@ then
 fi
 
 %changelog
+* Fri Jul 12 2017 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.20-2
+- Updated requires (oscar-base-libs) now needs V6.1.2r7005 (git migration)
 * Mon Feb 23 2015 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.20-1
 - Fix mysql.cfg
 * Wed Jul 16 2014 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.19-2
