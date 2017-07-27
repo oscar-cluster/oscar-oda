@@ -48,7 +48,7 @@ then
 fi
 
 %changelog
-* Fri Jul 12 2017 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.20-2
+* Wed Jul 12 2017 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.20-2
 - Updated requires (oscar-base-libs) now needs V6.1.2r7005 (git migration)
 * Mon Feb 23 2015 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.20-1
 - Fix mysql.cfg
