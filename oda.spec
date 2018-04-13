@@ -11,7 +11,7 @@ Source:         %{name}.tar.gz
 BuildRoot:      %{_localstatedir}/tmp/%{name}-root
 BuildArch:      noarch
 #AutoReqProv:    no
-Requires:       oscar-base-lib > 6.1.2r7005
+Requires:       oscar-base-lib > 6.1.2
 Requires:       orm
 
 %description
