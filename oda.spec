@@ -13,6 +13,10 @@ BuildArch:      noarch
 #AutoReqProv:    no
 Requires:       oscar-base-lib > 6.1.2
 Requires:       orm
+BuildRequires:	perl-interpreter
+BuildRequirtes:	perl-generators
+BuildRequires:	make
+BuildRequires:	perl(Pod::Man)
 
 %description
 Set of scripts and Perl modules for the management of the OSCAR database.
