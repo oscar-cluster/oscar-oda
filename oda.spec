@@ -14,7 +14,7 @@ BuildArch:      noarch
 Requires:       oscar-base-lib > 6.1.2
 Requires:       orm
 BuildRequires:	perl-interpreter
-BuildRequirtes:	perl-generators
+BuildRequires:	perl-generators
 BuildRequires:	make
 BuildRequires:	perl(Pod::Man)
 
