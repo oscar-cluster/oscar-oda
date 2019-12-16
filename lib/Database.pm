@@ -417,11 +417,11 @@ sub get_nics_info_with_node {
 ################################################################################
 # Return NICs information for a given node (identified by its name).           #
 #                                                                              #
-# Input: nic, network interface we are looking for (e.g., "eth0").             #
+# Input: nic, network interface we are looking for (e.g., "eth0").(optional)   #
 #        node, node name for which we want to get NICs information (e.g.,      #
 #              oscar_server). Note for here, we know for instance we want      #
 #              info about eth0 on oscar_server.                                #
-#        results, reference to a hash that represents the result.              #
+#        results, reference to a table of hash(es) that represents the result. #
 #        options_ref, ???.                                                     #
 #        error_strings_ref, reference to a hash that gives error handling      #
 #                           options.                                           #
@@ -461,8 +461,10 @@ sub get_nics_with_name_node {
                      'net' => $net};
     } elsif ($config->{oda_type} eq "db") {
         my $sql ="SELECT Nics.* FROM Nics, Nodes ".
-                "WHERE Nodes.id=Nics.node_id AND Nodes.name='$node' " .
-                "AND Nics.name='$nic'";
+                "WHERE Nodes.id=Nics.node_id AND Nodes.name='$node'";
+	if(defined($nic)) {
+                $sql .= " AND Nics.name='$nic'";
+	}
         print "DB_DEBUG>$0:\n====> in Database::get_nics_with_name_node SQL :".
               " $sql\n" if $$options_ref{debug};
         my $rc = do_select($sql,$results, $options_ref, $error_strings_ref);
