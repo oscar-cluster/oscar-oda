@@ -1,4 +1,5 @@
-Summary:        OSCAR DatabAse.
+%define is_suse %(test -f /etc/SuSE-release && echo 1 || echo 0)
+Summary:        OSCAR Database.
 Name:           oda
 Version:        1.4.21
 Release:        1%{?dist}
@@ -13,8 +14,12 @@ BuildArch:      noarch
 #AutoReqProv:    no
 Requires:       oscar-base-lib > 6.1.2
 Requires:       orm
-BuildRequires:	perl-interpreter
-BuildRequires:	perl-generators
+%if 0%{?fedora} >= 16 || 0%{?rhel} >= 6
+BuildRequires:  perl-generators, perl-interpreter
+%endif
+%if 0%{?is_suse}%{?is_opensuse}
+BuildRequires:  rpm, perl
+%endif
 BuildRequires:	make
 BuildRequires:	perl(Pod::Man)
 
