@@ -1,3 +1,9 @@
+oda (1.4.22-1) precise; urgency=low
+
+  * New upstream version.
+
+ -- Olivier Lahaye <olivier.lahaye@cea.fr>  Tue, 9 Nov 2021 15:33:17 +0100
+
 oda (1.4.21-1) precise; urgency=low
 
   * New upstream version.

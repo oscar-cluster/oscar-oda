@@ -4,7 +4,7 @@
 
 Summary:        OSCAR Database.
 Name:           oda
-Version:        1.4.21
+Version:        1.4.22
 Release:        1%{?dist}
 Vendor:         Open Cluster Group <http://OSCAR.OpenClusterGroup.org/>
 Distribution:   OSCAR
@@ -60,6 +60,10 @@ then
 fi
 
 %changelog
+* Tue Nov 09 2021 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.22-1
+- Bugfix release
+* Mon Apr 26 2021 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.21-1
+- Bugfix release
 * Wed Jul 12 2017 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.20-2
 - Updated requires (oscar-base-libs) now needs V6.1.2r7005 (git migration)
 * Mon Feb 23 2015 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.20-1
