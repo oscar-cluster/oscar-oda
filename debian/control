@@ -1,12 +1,12 @@
 Source: oda
-Section: oscar
+Section: science
 Priority: optional
-Maintainer: Geoffroy Vallee <valleegr@ornl.gov>
+Maintainer: Olivier Lahaye <olivier.lahaye@cea.fr>
 Build-Depends: debhelper (>= 4.0.0)
 Standards-Version: 3.7.2
 
 Package: oda
 Architecture: all
-Depends: ${misc:Depends}, liboscar (>= 6.1.1), orm
+Depends: ${misc:Depends}, liboscar-server (>= 6.2.1), orm
 Description: OSCAR DatabAse
  Set of scripts and Perl modules for the management of the OSCAR database.
