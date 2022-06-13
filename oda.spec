@@ -15,7 +15,7 @@ Source:         %{name}.tar.gz
 BuildRoot:      %{_localstatedir}/tmp/%{name}-root
 BuildArch:      noarch
 #AutoReqProv:    no
-Requires:       liboscar-server >= 6.3.0
+Requires:       liboscar-server >= 6.3
 Requires:       orm
 %if 0%{?fedora} >= 16 || 0%{?rhel} >= 6
 BuildRequires:  perl-generators, perl-interpreter
