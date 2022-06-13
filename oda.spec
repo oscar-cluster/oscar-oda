@@ -5,7 +5,7 @@
 Summary:        OSCAR Database.
 Name:           oda
 Version:        1.4.22
-Release:        1%{?dist}
+Release:        2%{?dist}
 Vendor:         Open Cluster Group <http://OSCAR.OpenClusterGroup.org/>
 Distribution:   OSCAR
 Packager:       Olivier Lahaye <olivier.lahaye@cea.fr>
@@ -15,7 +15,7 @@ Source:         %{name}.tar.gz
 BuildRoot:      %{_localstatedir}/tmp/%{name}-root
 BuildArch:      noarch
 #AutoReqProv:    no
-Requires:       oscar-base-lib > 6.1.2
+Requires:       liboscar-server >= 6.3.0
 Requires:       orm
 %if 0%{?fedora} >= 16 || 0%{?rhel} >= 6
 BuildRequires:  perl-generators, perl-interpreter
@@ -60,6 +60,8 @@ then
 fi
 
 %changelog
+* Mon Jun 13 2022 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.22-2
+- Update des to match new oscar packaging (liboscar-server)
 * Tue Nov 09 2021 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.22-1
 - Bugfix release
 * Mon Apr 26 2021 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.21-1
