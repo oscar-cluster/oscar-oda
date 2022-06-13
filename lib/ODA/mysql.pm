@@ -965,7 +965,7 @@ sub reset_password{
 
     # don't try to grand privileges for anonymous user if it doesn't exists.
     my $users = `$cmd_string -N -e \"select user from mysql.user where user = 'anonymous'\"`;
-    if (length $result != 0) {
+    if (length $users != 0) {
         return 0 if !do_shell_command($options_ref,
 				     "$cmd_string -e \"GRANT SELECT ON " . 
 				     $$options_ref{database} . '.* TO ' . 
