@@ -60,8 +60,19 @@ sub init_db ($) {
     oscar_log(3, INFO, "Database Initialization...");
     require OSCAR::SystemServices;
     require OSCAR::SystemServicesDefs;
-    OSCAR::SystemServices::system_service (OSCAR::SystemServicesDefs::MYSQL(),
-        OSCAR::SystemServicesDefs::START());
+    my $db_type = $config->{'db_type'};
+    my $db_service = OSCAR::SystemServicesDefs::MYSQL(); # Default value.
+    if (defined ($db_type)) {
+        if ("$db_type" eq "mysql") {
+            $db_service = OSCAR::SystemServicesDefs::MYSQL();
+        } elsif ("$db_type" eq "pgsql") {
+            $db_service = OSCAR::SystemServicesDefs::POSTGRESQL();
+        } else {
+            carp "ERROR: unknown database type (DB_TYPE) in oscar.conf";
+        }
+    }
+
+    OSCAR::SystemServices::system_service ($db_service, OSCAR::SystemServicesDefs::START());
     my (%options, %errors);
     my $database_status = OSCAR::oda::check_oscar_database(
         \%options,
