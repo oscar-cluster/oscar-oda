@@ -911,14 +911,29 @@ if ( exists $options{reset} ) {
     #
     require OSCAR::SystemServices;
     require OSCAR::SystemServicesDefs;
-    my $db_type = "mysql"; # TOOD: We currently support only mysql, we need to
-                           # be able to detect that automatically.
-    if ($db_type eq "mysql") {
-        OSCAR::SystemServices::system_service (OSCAR::SystemServicesDefs::MYSQL(),
-            OSCAR::SystemServicesDefs::RESTART());
-    } else {
-        carp "Restart of postgres not yet supported";
+    #
+    # We get the configuration from the OSCAR configuration file.
+    require OSCAR::ConfigManager;
+    require OSCAR::Startover;
+    my $oscar_configurator = OSCAR::ConfigManager->new();
+    if ( ! defined ($oscar_configurator) ) {
+        die "ERROR: Impossible to get the OSCAR configuration\n";
     }
+    my $config = $oscar_configurator->get_config();
+
+    my $db_type = $config->{'db_type'};
+    my $db_service = OSCAR::SystemServicesDefs::MYSQL(); # Default value.
+    if (defined ($db_type)) {
+        if ("$db_type" eq "mysql") {
+            $db_service = OSCAR::SystemServicesDefs::MYSQL();
+        } elsif ("$db_type" eq "Pg") {
+            $db_service = OSCAR::SystemServicesDefs::POSTGRESQL();
+        } else {
+            carp "ERROR: unknown database type (DB_TYPE) in oscar.conf";
+        }
+    }
+    OSCAR::SystemServices::system_service ($db_service, OSCAR::SystemServicesDefs::RESTART());
+
     
     #
     # We drop the database
@@ -931,15 +946,6 @@ if ( exists $options{reset} ) {
     # We remove the oda prereq
     #
     print "Removing ODA prereqs\n";
-    # We get the configuration from the OSCAR configuration file.
-    require OSCAR::ConfigManager;
-    require OSCAR::Startover;
-    my $oscar_configurator = OSCAR::ConfigManager->new();
-    if ( ! defined ($oscar_configurator) ) {
-        die "ERROR: Impossible to get the OSCAR configuration\n";
-    }
-    my $config = $oscar_configurator->get_config();
-
     # Then we deal with prereq.cfg
     my $dir;
     if (defined $ENV{OSCAR_HOME}) {

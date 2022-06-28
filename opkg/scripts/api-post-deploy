@@ -31,16 +31,27 @@ use strict;
 use Carp;
 use OSCAR::Logger;
 use OSCAR::Opkg;
+use OSCAR::ConfigFile;
 use OSCAR::OCA::OS_Settings;
 use OSCAR::SystemServices;
 use OSCAR::SystemServicesDefs;
 
-my ($db_type, $chk) = split(':', $ENV{OSCAR_DB});
+if (defined($ENV{OSCAR_DB})) {
+    my ($db_type, $chk) = split(':', $ENV{OSCAR_DB});
+    $db_type="Pg" if ($db_type eq "pgsql");
+}
+
+if (! defined($db_type)) {
+    my $db_type = OSCAR::ConfigFile::get_value ("/etc/oscar/oscar.conf",
+                                                      undef,
+                                                     "DB_TYPE");
+}
+
 my $cmd;
 
 # OL: Nothing to do if $db_type eq "mysql"
 #
-if ( $db_type eq "pgsql" ) {
+if ( $db_type eq "Pg" ) {
     my $PG_DATA_DIR = OSCAR::OCA::OS_Settings::getitem("postgresql_datadir");
     my $pg_conf = "$PG_DATA_DIR/pg_hba.conf";
     my $postgresql_conf = "$PG_DATA_DIR/postgresql.conf";
@@ -85,7 +96,7 @@ if ( $db_type eq "pgsql" ) {
         if (system($cmd)) {
             die "ERROR: Impossible to execute $cmd";
         }
-        # OL: FIXME3: Check if this is ok for all distros.
+        # OL: FIXME: Check if this user:group is ok for all distros.
         $cmd = "chown postgres:postgres $pg_conf";
         if (system($cmd)) {
             die "ERROR: Impossible to execute $cmd";

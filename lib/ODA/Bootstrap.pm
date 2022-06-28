@@ -241,14 +241,14 @@ sub bootstrap_oda ($) {
 
     # Now we can really initialize the database, eventhing is ready.
     my $oda_type = $config->{'oda_type'};
-    if ($oda_type eq "file") {
-        if (init_file_db()) {
-            carp "ERROR: Impossible to initialize ODA\n";
+    if ($oda_type eq "db") {
+        if (init_db()) {
+            carp "ERROR: Impossible to initialize ODA (type=db)\n";
             return -1;
         }
-    } elsif ($oda_type eq "db") {
-        if (init_db ($oscar_configurator)) {
-            carp "ERROR: Impossible to initialize ODA\n";
+    } elsif ($oda_type eq "file") {
+        if (init_file_db ($oscar_configurator)) {
+            carp "ERROR: Impossible to initialize ODA (type=file)\n";
             return -1;
         }
     } else {
@@ -263,7 +263,8 @@ sub bootstrap_oda ($) {
         OSCAR::SystemServices::system_service (OSCAR::SystemServicesDefs::MYSQL(),
             OSCAR::SystemServicesDefs::RESTART());
     } else {
-        carp "Restart of postgres not yet supported";
+        OSCAR::SystemServices::system_service (OSCAR::SystemServicesDefs::POSTGRESQL(),
+            OSCAR::SystemServicesDefs::RESTART());
     }
     
     return 0;
