@@ -4,8 +4,8 @@
 
 Summary:        OSCAR Database.
 Name:           oda
-Version:        1.4.22
-Release:        2%{?dist}
+Version:        1.5.0
+Release:        1%{?dist}
 Vendor:         Open Cluster Group <http://OSCAR.OpenClusterGroup.org/>
 Distribution:   OSCAR
 Packager:       Olivier Lahaye <olivier.lahaye@cea.fr>
@@ -60,6 +60,8 @@ then
 fi
 
 %changelog
+* Tue Jun 28 2022 Olivier Lahaye <olivier.lahaye@cea.fr> 1.5-1
+- New version (bootstrap rewrite).
 * Mon Jun 13 2022 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.22-2
 - Update des to match new oscar packaging (liboscar-server)
 * Tue Nov 09 2021 Olivier Lahaye <olivier.lahaye@cea.fr> 1.4.22-1
