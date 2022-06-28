@@ -535,7 +535,7 @@ sub restore_oda_database ($$$$$) {
 sub reset_oda_password ($$$$) {
     my ($command, $arguments, $options_ref, $error_strings) = @_;
 
-    my $odapw_file = "/etc/odapw";
+    my $odapw_file = "/etc/oscar/odapw";
     my $odapw_script = "$ENV{OSCAR_HOME}/scripts/make_database_password";
     my $answer = "";
     my $cmd;
@@ -547,7 +547,7 @@ sub reset_oda_password ($$$$) {
             return -1;
         }
     }
-    $cmd = "cp -p /etc/odapw{,.bak}";
+    $cmd = "cp -p /etc/oscar/odapw{,.bak}";
     if (system ($cmd)) {
         carp "ERROR: Impossible to execute $cmd";
         return -1;
@@ -604,10 +604,10 @@ sub reset_oda_password ($$$$) {
         my $file = "$odapw_file.bak";
         unlink ($file) or (carp "ERROR: Impossible to remove $file", return -1);
 
-        # synchronize /etc/odapw across a cluster
+        # synchronize /etc/oscar/odapw across a cluster
         chomp(my $CPUSH = `which cpush`);
         if (-e $CPUSH){
-            $cmd = "$CPUSH /etc/odapw";
+            $cmd = "$CPUSH /etc/oscar/odapw";
             if (system($cmd)) {
                 carp "ERROR: Impossible to execute $cmd";
                 return -1;

@@ -56,7 +56,7 @@ my %options = ( 'debug'         => 0,
                 'verbose'       => 0 );
 
 my %unescape_fields_hash = ();
-my $ODAPW = "/etc/odapw";
+my $ODAPW = "/etc/oscar/odapw";
 
 $options{debug} = 1
     if (exists $ENV{OSCAR_VERBOSE} && $ENV{OSCAR_VERBOSE} == 10) ||
@@ -541,22 +541,22 @@ sub set_option_defaults {
     my ( $options_ref ) = @_;
 
     # if the caller didn't specify a host, and there is a
-    # file named /etc/odaserver take the host name from that,
+    # file named /etc/oscar/odaserver take the host name from that,
     # or set the host to localhost
     if (!exists $$options_ref{host}) {
-	if (-r "/etc/odaserver") {
-	    if (!open( SERVERFILE, "/etc/odaserver")) {
-		print "DB_DEBUG>$0:\n====> failed to oda server file /etc/odaserver\n";
+	if (-r "/etc/oscar/odaserver") {
+	    if (!open( SERVERFILE, "/etc/oscar/odaserver")) {
+		print "DB_DEBUG>$0:\n====> failed to oda server file /etc/oscar/odaserver\n";
 	    } else {
 		my @lines = <SERVERFILE>;
 		close(SERVERFILE);
 		chomp @lines;
 		if (scalar @lines != 1) {
-		    print "DB_DEBUG>$0:\n====> oda server file /etc/odaserver needs only one line\n";
+		    print "DB_DEBUG>$0:\n====> oda server file /etc/oscar/odaserver needs only one line\n";
 		} else {
 		    my @fields = split( /\s+/, $lines[0] );
 		    if (scalar @fields != 1) {
-			print "DB_DEBUG>$0:\n====> oda server file /etc/odaserver needs only one word\n";
+			print "DB_DEBUG>$0:\n====> oda server file /etc/oscar/odaserver needs only one word\n";
 		    } else {
 			$$options_ref{host} = $fields[0];
 		    }
@@ -614,7 +614,7 @@ sub set_option_defaults {
     if (!exists $$options_ref{password}) {
 
 	# if we are root accessing the database server,
-	# use the password defined in the /etc/odapw 
+	# use the password defined in the /etc/oscar/odapw 
 	# file if there, otherwise, set the password to undef
 	$$options_ref{password} = undef;
 	if (! $>) {
