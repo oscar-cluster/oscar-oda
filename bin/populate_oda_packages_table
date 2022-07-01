@@ -26,6 +26,7 @@
 use strict;
 use Getopt::Long;
 use lib "$ENV{OSCAR_HOME}/lib", "$ENV{OSCAR_HOME}/lib/OSCAR";
+use OSCAR::Env;
 use OSCAR::Database;
 use OSCAR::Database_generic;
 use OSCAR::oda;
@@ -38,7 +39,8 @@ my @error_strings = ();
 my %table_fields_hash = ();
 my %options = ( debug => 0 );
 
-my $verbose = 1;
+my $verbose = $OSCAR::Env::oscar_verbose;
+$options{debug} = 1 if ($verbose == 10);
 if ( (exists $ENV{OSCAR_VERBOSE} && $ENV{OSCAR_VERBOSE} == 10) 
     || $ENV{OSCAR_DB_VERBOSE} || $ENV{OSCAR_DB_DEBUG}){
     $options{debug} = 1;
@@ -178,7 +180,7 @@ foreach my $opkg (@list_opkgs) {
     $$opkg_data{'distro'} = $distro_string;
     $o{$opkg} = $opkg_data;
 }
-OSCAR::Utils::print_hash ("", "OPKGs data:", \%o);
+OSCAR::Utils::print_hash ("", "OPKGs data:", \%o) if($OSCAR::Env::oscar_verbose > 5);
 
 print "\n[$0]:\n<<<<<===========================".
     " Populating the Packages records starts\n"
