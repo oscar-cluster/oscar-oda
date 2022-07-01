@@ -38,10 +38,12 @@ my @error_strings = ();
 my %table_fields_hash = ();
 my %options = ( debug => 0 );
 
+my $verbose = 1;
 if ( (exists $ENV{OSCAR_VERBOSE} && $ENV{OSCAR_VERBOSE} == 10) 
     || $ENV{OSCAR_DB_VERBOSE} || $ENV{OSCAR_DB_DEBUG}){
     $options{debug} = 1;
 }
+
 
 # configure command line options parsing
 Getopt::Long::Configure("ignore_case"); # ignore case
@@ -54,6 +56,7 @@ GetOptions( \%options,
             'help', )
     || usage(1);
 
+$verbose = 10 if($options{debug});
 print "[$0]:\n====> after GetOptions ARGV=<@ARGV>\n" if $options{debug};
 
 usage (0) if $options{help};
@@ -85,7 +88,7 @@ if ($ARGV[0]) {
               "configured distro pools!\n";
         usage(1);
     }
-    print "Populating Packages table for distribution: istro_string\n";
+    print "Populating Packages table for distribution: $distro_string\n";
 }
 
 print "Detecting local distro...\n";
@@ -138,7 +141,7 @@ print "Getting info on all opkgs available in the passed OS repositories...\n";
 
 my %o;
 require OSCAR::RepositoryManager;
-my $orm = OSCAR::RepositoryManager->new(distro => $distro_string);
+my $orm = OSCAR::RepositoryManager->new(distro => $distro_string, verbosity => $verbose);
 if (!defined $orm) {
     die "ERROR: Impossible to create a RepositoryManager object";
 }
