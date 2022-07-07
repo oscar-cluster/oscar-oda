@@ -180,7 +180,7 @@ foreach my $opkg (@list_opkgs) {
     $$opkg_data{'distro'} = $distro_string;
     $o{$opkg} = $opkg_data;
 }
-OSCAR::Utils::print_hash ("", "OPKGs data:", \%o) if($OSCAR::Env::oscar_verbose > 5);
+OSCAR::Utils::print_hash ("", "OPKGs data", \%o) if($OSCAR::Env::oscar_verbose > 5);
 
 print "\n[$0]:\n<<<<<===========================".
     " Populating the Packages records starts\n"
