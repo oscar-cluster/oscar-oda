@@ -24,11 +24,20 @@
       <name>Olivier Lahaye</name>
       <email>olivier.lahaye@cea.fr</email>
     </author>
-   </authors>
-  <serverDeps/>
+  </authors>
+  <serverDeps>
+    <requires>
+      <pkg>sync-files</pkg>
+    </requires>
+  </serverDeps>
   <clientDeps/>
   <apiDeps/>
   <changelog>
+    <versionEntry version="1.4-1">
+      <changelogEntry authorName="Olivier Lahaye" date="2022-07-20T14:24:52+02:00">
+        <item>Add sync-files requirement for server (needed by api-post-deploy)</item>
+      </changelogEntry>
+    </versionEntry>
     <versionEntry version="1.32.5-2.1">
       <changelogEntry authorName="Olivier Lahaye" date="2014-07-11T15:25:17+02:00">
         <item>Rebuild to avoid conflicts with new disttag in rpm distros</item>
