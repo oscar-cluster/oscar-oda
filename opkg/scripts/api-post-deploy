@@ -36,6 +36,9 @@ use OSCAR::OCA::OS_Settings;
 use OSCAR::SystemServices;
 use OSCAR::SystemServicesDefs;
 
+my $db_type;
+my $chk;
+
 if (defined($ENV{OSCAR_DB})) {
     my ($db_type, $chk) = split(':', $ENV{OSCAR_DB});
     $db_type="Pg" if ($db_type eq "pgsql");
@@ -43,8 +46,8 @@ if (defined($ENV{OSCAR_DB})) {
 
 if (! defined($db_type)) {
     my $db_type = OSCAR::ConfigFile::get_value ("/etc/oscar/oscar.conf",
-                                                      undef,
-                                                     "DB_TYPE");
+                                                undef,
+                                                "DB_TYPE");
 }
 
 my $cmd;
